@@ -18,6 +18,8 @@ docker compose up -d
 
 The app then runs on `http://localhost:3000` (or the port from `PORT`). Log in with the `ADMIN_USERNAME`/`ADMIN_PASSWORD` from your `.env`, there's no self-registration, this is the only account. Want to change the password? Update `ADMIN_PASSWORD` and restart the container.
 
+`docker compose up -d` pulls the published image from `ghcr.io/lucashuls/kilometry`, built and released automatically on every push to `main`. Want to pin a specific version instead of always getting the latest one? Set `VERSION=v1.2.3` in your `.env`. Building from source instead (for development, or if you've made local changes) still works: `docker compose up -d --build`.
+
 ## Data model
 
 Every trip has a date, location, and number of km. You manage your own locations (name + an optional fixed distance that's auto-filled when you pick that location, but stays overridable).

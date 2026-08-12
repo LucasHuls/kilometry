@@ -18,6 +18,7 @@ services:
     restart: unless-stopped
 
   kilometry:
+    image: ghcr.io/lucashuls/kilometry:${VERSION:-latest}
     build: .
     ports:
       - "${PORT:-3000}:3000"
