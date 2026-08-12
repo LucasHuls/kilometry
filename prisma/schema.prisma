@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String     @id @default(cuid())
+  username     String     @unique
+  passwordHash String
+  kmRate       Float      @default(0.23)
+  trips        Trip[]
+  locations    Location[]
+  createdAt    DateTime   @default(now())
+}
+
+model Location {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  name      String
+  fixedKm   Float    @default(0)
+  isDefault Boolean  @default(false)
+  trips     Trip[]
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Trip {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  date       DateTime
+  locationId String
+  location   Location @relation(fields: [locationId], references: [id])
+  km         Float
+  createdAt  DateTime @default(now())
+}
