@@ -9,11 +9,13 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: 'Kilometry',
     description: t.common.appDescription,
-    manifest: '/manifest.webmanifest',
     appleWebApp: {
       capable: true,
       statusBarStyle: 'default',
       title: 'Kilometry',
+    },
+    other: {
+      'mobile-web-app-capable': 'yes',
     },
   }
 }
@@ -27,6 +29,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang={locale}>
+      {/* Rendered manually instead of via generateMetadata's `manifest` field: Next.js
+          always adds crossOrigin="use-credentials" to that link, which makes Android
+          Chrome's WebAPK install step fail and silently fall back to a home-screen
+          shortcut instead of a real standalone install. */}
+      <head>
+        <link rel="manifest" href="/manifest.webmanifest" />
+      </head>
       <body className="min-h-screen bg-slate-50 text-slate-900">
         <ServiceWorkerRegister />
         <LocaleProvider locale={locale}>{children}</LocaleProvider>
