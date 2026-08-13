@@ -45,7 +45,7 @@ export default async function DashboardPage({
           href={`/api/export?month=${month}`}
           className="rounded border border-slate-300 bg-white px-3 py-2.5 text-sm hover:bg-slate-50"
         >
-          {t.dashboard.exportCsv}
+          {t.dashboard.exportXlsx}
         </a>
       </div>
 

@@ -11,7 +11,14 @@ export default async function SettingsPage() {
   return (
     <div>
       <h1 className="mb-4 text-xl font-semibold">{t.settings.title}</h1>
-      <SettingsForm kmRate={user.kmRate} />
+      <SettingsForm
+        kmRate={user.kmRate}
+        defaultReturnTrip={user.defaultReturnTrip}
+        exportIncludeLocation={user.exportIncludeLocation}
+        exportIncludeRetour={user.exportIncludeRetour}
+        exportIncludeKm={user.exportIncludeKm}
+        exportIncludeFee={user.exportIncludeFee}
+      />
     </div>
   )
 }

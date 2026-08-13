@@ -31,7 +31,7 @@ The reimbursement per trip is `km * kmRate`, where `kmRate` is configurable (set
 - Add, edit, and delete trips
 - Manage locations with a configurable fixed distance per location
 - Overview with a monthly filter, monthly and all-time totals, and a chart per month
-- CSV export of the filtered trips
+- XLSX export of the filtered trips, with configurable columns (settings)
 - Bilingual (NL/EN)
 - Installable as a PWA
 
