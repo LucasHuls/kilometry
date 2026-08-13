@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth'
-import { tripsToCsv } from '@/lib/csv'
+import { tripsToXlsx } from '@/lib/xlsx'
 import { getT } from '@/lib/i18n/server'
 import { monthRange } from '@/lib/trips'
 
@@ -18,12 +18,17 @@ export async function GET(req: NextRequest) {
   }
 
   const trips = await prisma.trip.findMany({ where, include: { location: true }, orderBy: { date: 'desc' } })
-  const csv = tripsToCsv(trips, user.kmRate, t)
+  const xlsx = await tripsToXlsx(trips, user.kmRate, t, {
+    location: user.exportIncludeLocation,
+    retour: user.exportIncludeRetour,
+    km: user.exportIncludeKm,
+    fee: user.exportIncludeFee,
+  })
 
-  return new NextResponse(csv, {
+  return new NextResponse(new Uint8Array(xlsx), {
     headers: {
-      'Content-Type': 'text/csv',
-      'Content-Disposition': `attachment; filename="kilometry-${month || 'alle'}.csv"`,
+      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition': `attachment; filename="kilometry-${month || 'alle'}.xlsx"`,
     },
   })
 }

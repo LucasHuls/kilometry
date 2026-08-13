@@ -8,13 +8,18 @@ datasource db {
 }
 
 model User {
-  id           String     @id @default(cuid())
-  username     String     @unique
-  passwordHash String
-  kmRate       Float      @default(0.23)
-  trips        Trip[]
-  locations    Location[]
-  createdAt    DateTime   @default(now())
+  id                    String     @id @default(cuid())
+  username              String     @unique
+  passwordHash          String
+  kmRate                Float      @default(0.23)
+  defaultReturnTrip     Boolean    @default(true)
+  exportIncludeLocation Boolean    @default(true)
+  exportIncludeRetour   Boolean    @default(true)
+  exportIncludeKm       Boolean    @default(true)
+  exportIncludeFee      Boolean    @default(true)
+  trips                 Trip[]
+  locations             Location[]
+  createdAt             DateTime   @default(now())
 }
 
 model Location {

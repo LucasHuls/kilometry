@@ -13,7 +13,7 @@ const nl = {
     loginFailed: 'Inloggen mislukt',
   },
   dashboard: {
-    exportCsv: 'Exporteer CSV',
+    exportXlsx: 'Exporteer XLSX',
     thisMonth: 'Deze maand',
     allTime: 'All-time',
     colDate: 'Datum',
@@ -36,6 +36,8 @@ const nl = {
     isReturnTrip: 'Retour (heen en terug)',
     returnTripShort: 'retour',
     saveFailed: 'Opslaan mislukt',
+    savedAddAnother: 'Rit opgeslagen. Voeg de volgende toe.',
+    backToOverview: 'Naar overzicht',
     noLocations: 'Je hebt nog geen locaties.',
     addLocation: 'Locatie toevoegen',
   },
@@ -59,6 +61,12 @@ const nl = {
   settings: {
     title: 'Instellingen',
     kmRate: 'Vergoeding per km (€)',
+    defaultReturnTrip: 'Retour standaard aanvinken bij een nieuwe rit',
+    exportColumnsTitle: 'Kolommen in export (datum staat er altijd bij)',
+    exportIncludeLocation: 'Locatie',
+    exportIncludeRetour: 'Retour',
+    exportIncludeKm: 'Km',
+    exportIncludeFee: 'Vergoeding',
     saved: 'Opgeslagen',
   },
   common: {
@@ -99,7 +107,7 @@ const en: typeof nl = {
     loginFailed: 'Login failed',
   },
   dashboard: {
-    exportCsv: 'Export CSV',
+    exportXlsx: 'Export XLSX',
     thisMonth: 'This month',
     allTime: 'All-time',
     colDate: 'Date',
@@ -122,6 +130,8 @@ const en: typeof nl = {
     isReturnTrip: 'Return trip (there and back)',
     returnTripShort: 'return',
     saveFailed: 'Save failed',
+    savedAddAnother: 'Trip saved. Add the next one.',
+    backToOverview: 'Back to overview',
     noLocations: "You don't have any locations yet.",
     addLocation: 'Add location',
   },
@@ -145,6 +155,12 @@ const en: typeof nl = {
   settings: {
     title: 'Settings',
     kmRate: 'Reimbursement per km (€)',
+    defaultReturnTrip: 'Check return trip by default on a new trip',
+    exportColumnsTitle: 'Columns in export (date is always included)',
+    exportIncludeLocation: 'Location',
+    exportIncludeRetour: 'Return',
+    exportIncludeKm: 'Km',
+    exportIncludeFee: 'Reimbursement',
     saved: 'Saved',
   },
   common: {

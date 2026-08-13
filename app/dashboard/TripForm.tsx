@@ -16,6 +16,7 @@ interface LocationOption {
 interface Props {
   locations: LocationOption[]
   tripId?: string
+  defaultReturnTrip?: boolean
   initial?: {
     date: string
     locationId: string | null
@@ -31,7 +32,7 @@ function today() {
   return new Date().toISOString().slice(0, 10)
 }
 
-export default function TripForm({ locations, tripId, initial }: Props) {
+export default function TripForm({ locations, tripId, defaultReturnTrip, initial }: Props) {
   const router = useRouter()
   const { t } = useLocale()
   const defaultLocationId =
@@ -42,9 +43,10 @@ export default function TripForm({ locations, tripId, initial }: Props) {
   const [km, setKm] = useState<string>(
     initial ? String(initial.km) : String(locations.find((l) => l.id === defaultLocationId)?.fixedKm ?? '')
   )
-  const [isReturnTrip, setIsReturnTrip] = useState(initial?.isReturnTrip ?? true)
+  const [isReturnTrip, setIsReturnTrip] = useState(initial?.isReturnTrip ?? defaultReturnTrip ?? true)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [savedAddAnother, setSavedAddAnother] = useState(false)
 
   function handleLocationChange(value: string) {
     setSelectedValue(value)
@@ -59,6 +61,7 @@ export default function TripForm({ locations, tripId, initial }: Props) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
+    setSavedAddAnother(false)
     setLoading(true)
 
     const res = await fetch(tripId ? `/api/trips/${tripId}` : '/api/trips', {
@@ -74,8 +77,17 @@ export default function TripForm({ locations, tripId, initial }: Props) {
     })
 
     if (res.ok) {
-      router.push('/dashboard')
-      router.refresh()
+      if (tripId) {
+        router.push('/dashboard')
+        router.refresh()
+      } else {
+        // Stay on the page after creating a new trip, ready for the next one.
+        handleLocationChange(defaultLocationId)
+        setCustomLocation('')
+        setSavedAddAnother(true)
+        setLoading(false)
+        router.refresh()
+      }
     } else {
       setError(await readErrorMessage(res, t.trip.saveFailed))
       setLoading(false)
@@ -158,6 +170,14 @@ export default function TripForm({ locations, tripId, initial }: Props) {
         </label>
       </div>
       {error && <p className="text-sm text-red-600">{error}</p>}
+      {savedAddAnother && (
+        <p className="text-sm text-green-600">
+          {t.trip.savedAddAnother}{' '}
+          <Link href="/dashboard" className="underline">
+            {t.trip.backToOverview}
+          </Link>
+        </p>
+      )}
       <button
         type="submit"
         disabled={loading}

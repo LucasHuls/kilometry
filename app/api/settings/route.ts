@@ -8,15 +8,29 @@ export async function PUT(req: NextRequest) {
   const { t } = await getT()
   if (!user) return NextResponse.json({ error: t.errors.notLoggedIn }, { status: 401 })
 
-  const { kmRate } = await req.json()
+  const {
+    kmRate,
+    defaultReturnTrip,
+    exportIncludeLocation,
+    exportIncludeRetour,
+    exportIncludeKm,
+    exportIncludeFee,
+  } = await req.json()
   if (kmRate === undefined) {
     return NextResponse.json({ error: t.errors.allFieldsRequired }, { status: 400 })
   }
 
   const updated = await prisma.user.update({
     where: { id: user.id },
-    data: { kmRate: Number(kmRate) },
+    data: {
+      kmRate: Number(kmRate),
+      defaultReturnTrip: Boolean(defaultReturnTrip),
+      exportIncludeLocation: Boolean(exportIncludeLocation),
+      exportIncludeRetour: Boolean(exportIncludeRetour),
+      exportIncludeKm: Boolean(exportIncludeKm),
+      exportIncludeFee: Boolean(exportIncludeFee),
+    },
   })
 
-  return NextResponse.json({ kmRate: updated.kmRate })
+  return NextResponse.json(updated)
 }
