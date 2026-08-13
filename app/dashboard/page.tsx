@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth'
 import { getT } from '@/lib/i18n/server'
 import { monthRange, currentMonthKey, getMonthlyTotals } from '@/lib/trips'
+import { effectiveKm } from '@/lib/tripKm'
 import MonthFilter from './MonthFilter'
 import TripRow from './TripRow'
 import TripCard from './TripCard'
@@ -31,9 +32,9 @@ export default async function DashboardPage({
     getMonthlyTotals(user.id, user.kmRate),
   ])
 
-  const monthKm = filteredTrips.reduce((sum, trip) => sum + trip.km, 0)
+  const monthKm = filteredTrips.reduce((sum, trip) => sum + effectiveKm(trip), 0)
   const monthFee = monthKm * user.kmRate
-  const allTimeKm = allTrips.reduce((sum, trip) => sum + trip.km, 0)
+  const allTimeKm = allTrips.reduce((sum, trip) => sum + effectiveKm(trip), 0)
   const allTimeFee = allTimeKm * user.kmRate
 
   return (
@@ -69,6 +70,7 @@ export default async function DashboardPage({
             <tr>
               <th className="px-4 py-2">{t.dashboard.colDate}</th>
               <th className="px-4 py-2">{t.dashboard.colLocation}</th>
+              <th className="px-4 py-2">{t.dashboard.colRetour}</th>
               <th className="px-4 py-2">{t.dashboard.colKm}</th>
               <th className="px-4 py-2">{t.dashboard.colFee}</th>
               <th className="px-4 py-2"></th>
@@ -80,7 +82,7 @@ export default async function DashboardPage({
             ))}
             {filteredTrips.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-slate-400">
+                <td colSpan={6} className="px-4 py-6 text-center text-slate-400">
                   {t.dashboard.noTripsThisMonth}
                 </td>
               </tr>

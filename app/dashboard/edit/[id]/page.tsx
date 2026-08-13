@@ -26,7 +26,9 @@ export default async function EditTripPage({ params }: { params: { id: string } 
         initial={{
           date: trip.date.toISOString().slice(0, 10),
           locationId: trip.locationId,
+          customLocation: trip.customLocation,
           km: trip.km,
+          isReturnTrip: trip.isReturnTrip,
         }}
       />
     </div>

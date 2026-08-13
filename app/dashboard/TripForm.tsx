@@ -18,10 +18,14 @@ interface Props {
   tripId?: string
   initial?: {
     date: string
-    locationId: string
+    locationId: string | null
+    customLocation: string | null
     km: number
+    isReturnTrip: boolean
   }
 }
+
+const OTHER = '__other__'
 
 function today() {
   return new Date().toISOString().slice(0, 10)
@@ -33,16 +37,22 @@ export default function TripForm({ locations, tripId, initial }: Props) {
   const defaultLocationId =
     initial?.locationId ?? locations.find((l) => l.isDefault)?.id ?? locations[0]?.id ?? ''
   const [date, setDate] = useState(initial?.date ?? today())
-  const [locationId, setLocationId] = useState(defaultLocationId)
+  const [selectedValue, setSelectedValue] = useState(initial && !initial.locationId ? OTHER : defaultLocationId)
+  const [customLocation, setCustomLocation] = useState(initial?.customLocation ?? '')
   const [km, setKm] = useState<string>(
     initial ? String(initial.km) : String(locations.find((l) => l.id === defaultLocationId)?.fixedKm ?? '')
   )
+  const [isReturnTrip, setIsReturnTrip] = useState(initial?.isReturnTrip ?? true)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  function handleLocationChange(id: string) {
-    setLocationId(id)
-    const found = locations.find((l) => l.id === id)
+  function handleLocationChange(value: string) {
+    setSelectedValue(value)
+    if (value === OTHER) {
+      setKm('')
+      return
+    }
+    const found = locations.find((l) => l.id === value)
     if (found) setKm(String(found.fixedKm))
   }
 
@@ -54,7 +64,13 @@ export default function TripForm({ locations, tripId, initial }: Props) {
     const res = await fetch(tripId ? `/api/trips/${tripId}` : '/api/trips', {
       method: tripId ? 'PUT' : 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ date, locationId, km: Number(km) }),
+      body: JSON.stringify({
+        date,
+        locationId: selectedValue === OTHER ? null : selectedValue,
+        customLocation: selectedValue === OTHER ? customLocation.trim() : null,
+        km: Number(km),
+        isReturnTrip,
+      }),
     })
 
     if (res.ok) {
@@ -92,7 +108,7 @@ export default function TripForm({ locations, tripId, initial }: Props) {
       <div>
         <label className="mb-1 block text-sm font-medium">{t.trip.location}</label>
         <select
-          value={locationId}
+          value={selectedValue}
           onChange={(e) => handleLocationChange(e.target.value)}
           required
           className="w-full rounded border border-slate-300 px-3 py-2.5"
@@ -102,8 +118,21 @@ export default function TripForm({ locations, tripId, initial }: Props) {
               {loc.name}
             </option>
           ))}
+          <option value={OTHER}>{t.trip.otherLocation}</option>
         </select>
       </div>
+      {selectedValue === OTHER && (
+        <div>
+          <label className="mb-1 block text-sm font-medium">{t.trip.customLocationLabel}</label>
+          <input
+            type="text"
+            value={customLocation}
+            onChange={(e) => setCustomLocation(e.target.value)}
+            required
+            className="w-full rounded border border-slate-300 px-3 py-2.5"
+          />
+        </div>
+      )}
       <div>
         <label className="mb-1 block text-sm font-medium">{t.trip.km}</label>
         <input
@@ -115,6 +144,18 @@ export default function TripForm({ locations, tripId, initial }: Props) {
           required
           className="w-full rounded border border-slate-300 px-3 py-2.5"
         />
+      </div>
+      <div className="flex items-center gap-2">
+        <input
+          id="isReturnTrip"
+          type="checkbox"
+          checked={isReturnTrip}
+          onChange={(e) => setIsReturnTrip(e.target.checked)}
+          className="h-4 w-4 rounded border-slate-300"
+        />
+        <label htmlFor="isReturnTrip" className="text-sm font-medium">
+          {t.trip.isReturnTrip}
+        </label>
       </div>
       {error && <p className="text-sm text-red-600">{error}</p>}
       <button

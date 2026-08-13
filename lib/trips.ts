@@ -1,4 +1,5 @@
 import { prisma } from './prisma'
+import { effectiveKm } from './tripKm'
 
 export function monthRange(month: string) {
   const [year, m] = month.split('-').map(Number)
@@ -20,7 +21,7 @@ export async function getMonthlyTotals(userId: string, kmRate: number, months = 
 
   const trips = await prisma.trip.findMany({
     where: { userId, date: { gte: start } },
-    select: { date: true, km: true },
+    select: { date: true, km: true, isReturnTrip: true },
   })
 
   const buckets = new Map<string, number>()
@@ -32,7 +33,7 @@ export async function getMonthlyTotals(userId: string, kmRate: number, months = 
   for (const trip of trips) {
     const key = monthKey(new Date(trip.date))
     if (buckets.has(key)) {
-      buckets.set(key, (buckets.get(key) ?? 0) + trip.km)
+      buckets.set(key, (buckets.get(key) ?? 0) + effectiveKm(trip))
     }
   }
 

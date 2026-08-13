@@ -31,12 +31,14 @@ model Location {
 }
 
 model Trip {
-  id         String   @id @default(cuid())
-  userId     String
-  user       User     @relation(fields: [userId], references: [id])
-  date       DateTime
-  locationId String
-  location   Location @relation(fields: [locationId], references: [id])
-  km         Float
-  createdAt  DateTime @default(now())
+  id             String    @id @default(cuid())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id])
+  date           DateTime
+  locationId     String?
+  location       Location? @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  customLocation String?
+  km             Float
+  isReturnTrip   Boolean   @default(true)
+  createdAt      DateTime  @default(now())
 }

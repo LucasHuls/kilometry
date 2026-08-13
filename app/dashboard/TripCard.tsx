@@ -3,17 +3,21 @@
 import { useRouter } from 'next/navigation'
 import { useLocale } from '@/lib/i18n/LocaleProvider'
 import { toIntlLocale } from '@/lib/i18n/cookie'
+import { effectiveKm } from '@/lib/tripKm'
 
 interface Trip {
   id: string
   date: Date
-  location: { name: string }
+  location: { name: string } | null
+  customLocation: string | null
   km: number
+  isReturnTrip: boolean
 }
 
 export default function TripCard({ trip, kmRate }: { trip: Trip; kmRate: number }) {
   const router = useRouter()
   const { t, locale } = useLocale()
+  const km = effectiveKm(trip)
 
   async function handleDelete() {
     if (!confirm(t.dashboard.confirmDeleteTrip)) return
@@ -24,10 +28,10 @@ export default function TripCard({ trip, kmRate }: { trip: Trip; kmRate: number 
   return (
     <div className="flex items-center justify-between px-4 py-3">
       <div>
-        <p className="font-medium">{trip.location.name}</p>
+        <p className="font-medium">{trip.location?.name ?? trip.customLocation}</p>
         <p className="text-sm text-slate-500">
-          {new Date(trip.date).toLocaleDateString(toIntlLocale(locale))} &middot; {trip.km.toFixed(1)} km &middot; &euro;{' '}
-          {(trip.km * kmRate).toFixed(2)}
+          {new Date(trip.date).toLocaleDateString(toIntlLocale(locale))} &middot; {km.toFixed(1)} km
+          {trip.isReturnTrip && <> ({t.trip.returnTripShort})</>} &middot; &euro; {(km * kmRate).toFixed(2)}
         </p>
       </div>
       <div className="flex shrink-0 items-center gap-3 text-sm">
