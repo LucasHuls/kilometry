@@ -2,10 +2,10 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Plus, MapPin, Settings } from 'lucide-react'
+import { LayoutDashboard, Plus, MapPin, Fuel, Settings } from 'lucide-react'
 import { useLocale } from '@/lib/i18n/LocaleProvider'
 
-export default function MobileNav() {
+export default function MobileNav({ fuelTrackingEnabled }: { fuelTrackingEnabled: boolean }) {
   const pathname = usePathname()
   const { t } = useLocale()
 
@@ -13,6 +13,9 @@ export default function MobileNav() {
     { href: '/dashboard', label: t.nav.overview, icon: LayoutDashboard, exact: true },
     { href: '/dashboard/new', label: t.nav.newTrip, icon: Plus, exact: false },
     { href: '/dashboard/locations', label: t.nav.locations, icon: MapPin, exact: false },
+    ...(fuelTrackingEnabled
+      ? [{ href: '/dashboard/fuel', label: t.nav.fuel, icon: Fuel, exact: false }]
+      : []),
     { href: '/dashboard/settings', label: t.nav.settings, icon: Settings, exact: false },
   ]
 
