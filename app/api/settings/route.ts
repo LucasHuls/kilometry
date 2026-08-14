@@ -15,6 +15,7 @@ export async function PUT(req: NextRequest) {
     exportIncludeRetour,
     exportIncludeKm,
     exportIncludeFee,
+    fuelTrackingEnabled,
   } = await req.json()
   if (kmRate === undefined) {
     return NextResponse.json({ error: t.errors.allFieldsRequired }, { status: 400 })
@@ -29,6 +30,7 @@ export async function PUT(req: NextRequest) {
       exportIncludeRetour: Boolean(exportIncludeRetour),
       exportIncludeKm: Boolean(exportIncludeKm),
       exportIncludeFee: Boolean(exportIncludeFee),
+      fuelTrackingEnabled: Boolean(fuelTrackingEnabled),
     },
   })
 

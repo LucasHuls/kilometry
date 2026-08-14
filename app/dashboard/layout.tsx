@@ -9,11 +9,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar />
+      <Sidebar fuelTrackingEnabled={user.fuelTrackingEnabled} />
       <main className="flex-1 px-4 py-6 pb-20 md:px-8 md:pb-6">
         <div className="mx-auto max-w-4xl">{children}</div>
       </main>
-      <MobileNav />
+      <MobileNav fuelTrackingEnabled={user.fuelTrackingEnabled} />
     </div>
   )
 }

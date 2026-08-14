@@ -12,6 +12,7 @@ interface Props {
   exportIncludeRetour: boolean
   exportIncludeKm: boolean
   exportIncludeFee: boolean
+  fuelTrackingEnabled: boolean
 }
 
 export default function SettingsForm({
@@ -21,6 +22,7 @@ export default function SettingsForm({
   exportIncludeRetour,
   exportIncludeKm,
   exportIncludeFee,
+  fuelTrackingEnabled,
 }: Props) {
   const router = useRouter()
   const { t } = useLocale()
@@ -30,6 +32,7 @@ export default function SettingsForm({
   const [includeRetour, setIncludeRetour] = useState(exportIncludeRetour)
   const [includeKm, setIncludeKm] = useState(exportIncludeKm)
   const [includeFee, setIncludeFee] = useState(exportIncludeFee)
+  const [fuelEnabled, setFuelEnabled] = useState(fuelTrackingEnabled)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState('')
 
@@ -48,6 +51,7 @@ export default function SettingsForm({
         exportIncludeRetour: includeRetour,
         exportIncludeKm: includeKm,
         exportIncludeFee: includeFee,
+        fuelTrackingEnabled: fuelEnabled,
       }),
     })
 
@@ -72,6 +76,19 @@ export default function SettingsForm({
           required
           className="w-full rounded border border-slate-300 px-3 py-2.5"
         />
+      </div>
+
+      <div className="flex items-center gap-2">
+        <input
+          id="fuelTrackingEnabled"
+          type="checkbox"
+          checked={fuelEnabled}
+          onChange={(e) => setFuelEnabled(e.target.checked)}
+          className="h-4 w-4 rounded border-slate-300"
+        />
+        <label htmlFor="fuelTrackingEnabled" className="text-sm font-medium">
+          {t.settings.fuelTrackingEnabled}
+        </label>
       </div>
 
       <div className="flex items-center gap-2">

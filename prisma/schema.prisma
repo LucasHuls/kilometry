@@ -8,18 +8,20 @@ datasource db {
 }
 
 model User {
-  id                    String     @id @default(cuid())
-  username              String     @unique
+  id                    String      @id @default(cuid())
+  username              String      @unique
   passwordHash          String
-  kmRate                Float      @default(0.23)
-  defaultReturnTrip     Boolean    @default(true)
-  exportIncludeLocation Boolean    @default(true)
-  exportIncludeRetour   Boolean    @default(true)
-  exportIncludeKm       Boolean    @default(true)
-  exportIncludeFee      Boolean    @default(true)
+  kmRate                Float       @default(0.23)
+  defaultReturnTrip     Boolean     @default(true)
+  exportIncludeLocation Boolean     @default(true)
+  exportIncludeRetour   Boolean     @default(true)
+  exportIncludeKm       Boolean     @default(true)
+  exportIncludeFee      Boolean     @default(true)
+  fuelTrackingEnabled   Boolean     @default(false)
   trips                 Trip[]
   locations             Location[]
-  createdAt             DateTime   @default(now())
+  fuelEntries           FuelEntry[]
+  createdAt             DateTime    @default(now())
 }
 
 model Location {
@@ -46,4 +48,17 @@ model Trip {
   km             Float
   isReturnTrip   Boolean   @default(true)
   createdAt      DateTime  @default(now())
+}
+
+model FuelEntry {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  date          DateTime
+  odometer      Float
+  pricePerLiter Float
+  totalPrice    Float
+  createdAt     DateTime @default(now())
+
+  @@index([userId])
 }
