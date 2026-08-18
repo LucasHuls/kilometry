@@ -13,6 +13,12 @@ interface Props {
   exportIncludeKm: boolean
   exportIncludeFee: boolean
   fuelTrackingEnabled: boolean
+  email: string | null
+  emailLocale: string
+  weeklyStatsEnabled: boolean
+  weeklyStatsDay: number
+  reminderEnabled: boolean
+  reminderDay: number
 }
 
 export default function SettingsForm({
@@ -23,6 +29,12 @@ export default function SettingsForm({
   exportIncludeKm,
   exportIncludeFee,
   fuelTrackingEnabled,
+  email,
+  emailLocale,
+  weeklyStatsEnabled,
+  weeklyStatsDay,
+  reminderEnabled,
+  reminderDay,
 }: Props) {
   const router = useRouter()
   const { t } = useLocale()
@@ -33,6 +45,12 @@ export default function SettingsForm({
   const [includeKm, setIncludeKm] = useState(exportIncludeKm)
   const [includeFee, setIncludeFee] = useState(exportIncludeFee)
   const [fuelEnabled, setFuelEnabled] = useState(fuelTrackingEnabled)
+  const [notifyEmail, setNotifyEmail] = useState(email ?? '')
+  const [notifyLocale, setNotifyLocale] = useState(emailLocale)
+  const [weeklyEnabled, setWeeklyEnabled] = useState(weeklyStatsEnabled)
+  const [weeklyDay, setWeeklyDay] = useState(weeklyStatsDay)
+  const [reminderOn, setReminderOn] = useState(reminderEnabled)
+  const [reminderDayOfMonth, setReminderDayOfMonth] = useState(reminderDay)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState('')
 
@@ -52,6 +70,12 @@ export default function SettingsForm({
         exportIncludeKm: includeKm,
         exportIncludeFee: includeFee,
         fuelTrackingEnabled: fuelEnabled,
+        email: notifyEmail,
+        emailLocale: notifyLocale,
+        weeklyStatsEnabled: weeklyEnabled,
+        weeklyStatsDay: weeklyDay,
+        reminderEnabled: reminderOn,
+        reminderDay: reminderDayOfMonth,
       }),
     })
 
@@ -154,6 +178,100 @@ export default function SettingsForm({
             <label htmlFor="exportIncludeFee" className="text-sm">
               {t.settings.exportIncludeFee}
             </label>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <p className="mb-2 text-sm font-medium">{t.settings.notificationsTitle}</p>
+        <div className="space-y-4">
+          <div>
+            <label className="mb-1 block text-sm">{t.settings.emailAddress}</label>
+            <div className="flex gap-2">
+              <input
+                type="email"
+                value={notifyEmail}
+                onChange={(e) => setNotifyEmail(e.target.value)}
+                className="w-full rounded border border-slate-300 px-3 py-2.5"
+              />
+              <div className="inline-flex shrink-0 rounded border border-slate-300 bg-white p-0.5 text-xs">
+                {(['nl', 'en'] as const).map((value) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setNotifyLocale(value)}
+                    aria-pressed={notifyLocale === value}
+                    className={`rounded px-2 py-1 font-medium ${
+                      notifyLocale === value ? 'bg-brand-navy text-white' : 'text-slate-500 hover:text-brand-navy'
+                    }`}
+                  >
+                    {value.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center gap-2">
+              <input
+                id="weeklyStatsEnabled"
+                type="checkbox"
+                checked={weeklyEnabled}
+                onChange={(e) => setWeeklyEnabled(e.target.checked)}
+                className="h-4 w-4 rounded border-slate-300"
+              />
+              <label htmlFor="weeklyStatsEnabled" className="text-sm">
+                {t.settings.weeklyStatsEnabled}
+              </label>
+            </div>
+            {weeklyEnabled && (
+              <div className="mt-2 pl-6">
+                <label className="mb-1 block text-xs text-slate-500">{t.settings.weeklyStatsDay}</label>
+                <select
+                  value={weeklyDay}
+                  onChange={(e) => setWeeklyDay(Number(e.target.value))}
+                  className="rounded border border-slate-300 px-3 py-2 text-sm"
+                >
+                  {t.common.weekdays.map((day, index) => (
+                    <option key={index} value={index}>
+                      {day}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
+
+          <div>
+            <div className="flex items-center gap-2">
+              <input
+                id="reminderEnabled"
+                type="checkbox"
+                checked={reminderOn}
+                onChange={(e) => setReminderOn(e.target.checked)}
+                className="h-4 w-4 rounded border-slate-300"
+              />
+              <label htmlFor="reminderEnabled" className="text-sm">
+                {t.settings.reminderEnabled}
+              </label>
+            </div>
+            {reminderOn && (
+              <div className="mt-2 pl-6">
+                <label className="mb-1 block text-xs text-slate-500">{t.settings.reminderDay}</label>
+                <select
+                  value={reminderDayOfMonth}
+                  onChange={(e) => setReminderDayOfMonth(Number(e.target.value))}
+                  className="rounded border border-slate-300 px-3 py-2 text-sm"
+                >
+                  {Array.from({ length: 28 }, (_, i) => i + 1).map((day) => (
+                    <option key={day} value={day}>
+                      {day}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
         </div>
       </div>

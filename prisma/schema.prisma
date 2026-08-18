@@ -18,6 +18,14 @@ model User {
   exportIncludeKm       Boolean     @default(true)
   exportIncludeFee      Boolean     @default(true)
   fuelTrackingEnabled   Boolean     @default(false)
+  email                 String?
+  emailLocale           String      @default("nl")
+  weeklyStatsEnabled    Boolean     @default(false)
+  weeklyStatsDay        Int         @default(1)
+  reminderEnabled       Boolean     @default(false)
+  reminderDay           Int         @default(1)
+  lastWeeklyStatsSentAt DateTime?
+  lastReminderSentAt    DateTime?
   trips                 Trip[]
   locations             Location[]
   fuelEntries           FuelEntry[]

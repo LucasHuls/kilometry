@@ -19,6 +19,12 @@ export default async function SettingsPage() {
         exportIncludeKm={user.exportIncludeKm}
         exportIncludeFee={user.exportIncludeFee}
         fuelTrackingEnabled={user.fuelTrackingEnabled}
+        email={user.email}
+        emailLocale={user.emailLocale}
+        weeklyStatsEnabled={user.weeklyStatsEnabled}
+        weeklyStatsDay={user.weeklyStatsDay}
+        reminderEnabled={user.reminderEnabled}
+        reminderDay={user.reminderDay}
       />
     </div>
   )

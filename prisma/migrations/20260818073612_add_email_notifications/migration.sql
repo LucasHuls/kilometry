@@ -1,0 +1,9 @@
+-- AlterTable
+ALTER TABLE `User` ADD COLUMN `email` VARCHAR(191) NULL,
+    ADD COLUMN `emailLocale` VARCHAR(191) NOT NULL DEFAULT 'nl',
+    ADD COLUMN `lastReminderSentAt` DATETIME(3) NULL,
+    ADD COLUMN `lastWeeklyStatsSentAt` DATETIME(3) NULL,
+    ADD COLUMN `reminderDay` INTEGER NOT NULL DEFAULT 1,
+    ADD COLUMN `reminderEnabled` BOOLEAN NOT NULL DEFAULT false,
+    ADD COLUMN `weeklyStatsDay` INTEGER NOT NULL DEFAULT 1,
+    ADD COLUMN `weeklyStatsEnabled` BOOLEAN NOT NULL DEFAULT false;
