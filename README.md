@@ -18,6 +18,8 @@ docker compose up -d
 
 The app then runs on `http://localhost:3000` (or the port from `PORT`). Log in with the `ADMIN_USERNAME`/`ADMIN_PASSWORD` from your `.env`, there's no self-registration, this is the only account. Want to change the password? Update `ADMIN_PASSWORD` and restart the container.
 
+Want the weekly stats and submission reminder emails (settings)? Set `RESEND_API_KEY` and `RESEND_FROM_EMAIL` (a [Resend](https://resend.com) account with a verified sending domain) in your `.env`. Both emails are opt-in per feature and off by default. Which day they send on is evaluated against the container's local time, so also set `TZ` (e.g. `TZ=Europe/Amsterdam`) if you don't want UTC.
+
 `docker compose up -d` pulls the published image from `ghcr.io/lucashuls/kilometry`, built and released automatically on every push to `main`. Want to pin a specific version instead of always getting the latest one? Set `VERSION=v1.2.3` in your `.env`. Building from source instead (for development, or if you've made local changes) still works: `docker compose up -d --build`.
 
 ## Data model
@@ -32,6 +34,7 @@ The reimbursement per trip is `km * kmRate`, where `kmRate` is configurable (set
 - Manage locations with a configurable fixed distance per location
 - Overview with a monthly filter, monthly and all-time totals, and a chart per month
 - XLSX export of the filtered trips, with configurable columns (settings)
+- Optional weekly stats and submission reminder emails via Resend (settings)
 - Bilingual (NL/EN)
 - Installable as a PWA
 

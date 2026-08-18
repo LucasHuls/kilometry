@@ -27,6 +27,9 @@ services:
       - SESSION_SECRET=${SESSION_SECRET}
       - ADMIN_USERNAME=${ADMIN_USERNAME}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - RESEND_FROM_EMAIL=${RESEND_FROM_EMAIL}
+      - TZ=${TZ:-UTC}
     depends_on:
       db:
         condition: service_healthy

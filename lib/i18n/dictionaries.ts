@@ -96,6 +96,13 @@ const nl = {
     exportIncludeKm: 'Km',
     exportIncludeFee: 'Vergoeding',
     fuelTrackingEnabled: 'Tanken bijhouden inschakelen',
+    notificationsTitle: 'Meldingen',
+    emailAddress: 'E-mailadres',
+    emailLocale: 'Taal van e-mails',
+    weeklyStatsEnabled: 'Wekelijks overzicht per e-mail',
+    weeklyStatsDay: 'Verstuur op',
+    reminderEnabled: 'Herinnering om te declareren',
+    reminderDay: 'Dag van de maand',
     saved: 'Opgeslagen',
   },
   common: {
@@ -105,6 +112,7 @@ const nl = {
     yes: 'Ja',
     no: 'Nee',
     appDescription: 'Kilometervergoeding bijhouden',
+    weekdays: ['Zondag', 'Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag'],
   },
   errors: {
     notLoggedIn: 'Niet ingelogd',
@@ -121,6 +129,33 @@ const nl = {
     fuelEntryNotFound: 'Tankbeurt niet gevonden',
     mustKeepOneLocation: 'Je moet minstens één locatie behouden',
     locationInUse: 'Deze locatie is nog in gebruik bij één of meer ritten',
+    emailRequiredForNotifications: 'Vul een e-mailadres in om meldingen te ontvangen',
+    invalidEmail: 'Ongeldig e-mailadres',
+    invalidDay: 'Ongeldige dag',
+  },
+  email: {
+    weeklyStats: {
+      subject: 'Je weekoverzicht van Kilometry',
+      heading: 'Je weekoverzicht',
+      intro: (since: string, until: string) => `Overzicht van ${since} tot ${until}.`,
+      tripCount: 'Aantal ritten',
+      totalKm: 'Totaal aantal km',
+      totalFee: 'Totale vergoeding',
+      fuelHeading: 'Tanken',
+      fuelLiters: 'Totaal getankt',
+      fuelCost: 'Totale kosten',
+      fuelAvgConsumption: 'Gem. verbruik',
+      fuelAvgPrice: 'Gem. literprijs',
+      footer:
+        'Je ontvangt deze e-mail omdat het wekelijkse overzicht in Kilometry is ingeschakeld. Dit kun je uitzetten bij instellingen.',
+    },
+    reminder: {
+      subject: 'Herinnering: dien je kilometerdeclaratie in',
+      heading: 'Tijd om je km te declareren',
+      body: 'Dit is een herinnering om je kilometerdeclaratie voor deze periode in te dienen.',
+      footer:
+        'Je ontvangt deze e-mail omdat de declaratieherinnering in Kilometry is ingeschakeld. Dit kun je uitzetten bij instellingen.',
+    },
   },
 }
 
@@ -222,6 +257,13 @@ const en: typeof nl = {
     exportIncludeKm: 'Km',
     exportIncludeFee: 'Reimbursement',
     fuelTrackingEnabled: 'Enable fuel tracking',
+    notificationsTitle: 'Notifications',
+    emailAddress: 'Email address',
+    emailLocale: 'Email language',
+    weeklyStatsEnabled: 'Weekly stats email',
+    weeklyStatsDay: 'Send on',
+    reminderEnabled: 'Submission reminder',
+    reminderDay: 'Day of the month',
     saved: 'Saved',
   },
   common: {
@@ -231,6 +273,7 @@ const en: typeof nl = {
     yes: 'Yes',
     no: 'No',
     appDescription: 'Track your mileage reimbursement',
+    weekdays: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
   },
   errors: {
     notLoggedIn: 'Not logged in',
@@ -247,6 +290,31 @@ const en: typeof nl = {
     fuelEntryNotFound: 'Fuel entry not found',
     mustKeepOneLocation: 'You must keep at least one location',
     locationInUse: 'This location is still used by one or more trips',
+    emailRequiredForNotifications: 'Enter an email address to receive notifications',
+    invalidEmail: 'Invalid email address',
+    invalidDay: 'Invalid day',
+  },
+  email: {
+    weeklyStats: {
+      subject: 'Your Kilometry weekly overview',
+      heading: 'Your weekly overview',
+      intro: (since: string, until: string) => `Overview from ${since} to ${until}.`,
+      tripCount: 'Number of trips',
+      totalKm: 'Total km',
+      totalFee: 'Total reimbursement',
+      fuelHeading: 'Fuel',
+      fuelLiters: 'Total fueled',
+      fuelCost: 'Total cost',
+      fuelAvgConsumption: 'Avg. consumption',
+      fuelAvgPrice: 'Avg. price/liter',
+      footer: 'You are receiving this email because the weekly overview is enabled in Kilometry. You can turn this off in settings.',
+    },
+    reminder: {
+      subject: 'Reminder: submit your mileage declaration',
+      heading: 'Time to submit your mileage',
+      body: 'This is a reminder to submit your mileage declaration for this period.',
+      footer: 'You are receiving this email because the submission reminder is enabled in Kilometry. You can turn this off in settings.',
+    },
   },
 }
 
