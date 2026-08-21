@@ -18,6 +18,7 @@ export default async function SettingsPage() {
         exportIncludeRetour={user.exportIncludeRetour}
         exportIncludeKm={user.exportIncludeKm}
         exportIncludeFee={user.exportIncludeFee}
+        exportIncludeDescription={user.exportIncludeDescription}
         fuelTrackingEnabled={user.fuelTrackingEnabled}
         email={user.email}
         emailLocale={user.emailLocale}

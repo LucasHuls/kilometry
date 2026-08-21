@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
   const { t } = await getT()
   if (!user) return NextResponse.json({ error: t.errors.notLoggedIn }, { status: 401 })
 
-  const { date, locationId, customLocation, km, isReturnTrip } = await req.json()
+  const { date, locationId, customLocation, description, km, isReturnTrip } = await req.json()
   if (!date || km === undefined || km === null) {
     return NextResponse.json({ error: t.errors.allFieldsRequired }, { status: 400 })
   }
@@ -45,12 +45,15 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  const trimmedDescription = typeof description === 'string' ? description.trim() : ''
+
   const trip = await prisma.trip.create({
     data: {
       userId: user.id,
       date: new Date(date),
       locationId: locationId || null,
       customLocation: locationId ? null : trimmedCustomLocation,
+      description: trimmedDescription || null,
       km: Number(km),
       isReturnTrip: isReturnTrip !== false,
     },

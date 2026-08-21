@@ -21,6 +21,7 @@ interface Props {
     date: string
     locationId: string | null
     customLocation: string | null
+    description: string | null
     km: number
     isReturnTrip: boolean
   }
@@ -40,6 +41,7 @@ export default function TripForm({ locations, tripId, defaultReturnTrip, initial
   const [date, setDate] = useState(initial?.date ?? today())
   const [selectedValue, setSelectedValue] = useState(initial && !initial.locationId ? OTHER : defaultLocationId)
   const [customLocation, setCustomLocation] = useState(initial?.customLocation ?? '')
+  const [description, setDescription] = useState(initial?.description ?? '')
   const [km, setKm] = useState<string>(
     initial ? String(initial.km) : String(locations.find((l) => l.id === defaultLocationId)?.fixedKm ?? '')
   )
@@ -71,6 +73,7 @@ export default function TripForm({ locations, tripId, defaultReturnTrip, initial
         date,
         locationId: selectedValue === OTHER ? null : selectedValue,
         customLocation: selectedValue === OTHER ? customLocation.trim() : null,
+        description: description.trim(),
         km: Number(km),
         isReturnTrip,
       }),
@@ -84,6 +87,7 @@ export default function TripForm({ locations, tripId, defaultReturnTrip, initial
         // Stay on the page after creating a new trip, ready for the next one.
         handleLocationChange(defaultLocationId)
         setCustomLocation('')
+        setDescription('')
         setSavedAddAnother(true)
         setLoading(false)
         router.refresh()
@@ -154,6 +158,15 @@ export default function TripForm({ locations, tripId, defaultReturnTrip, initial
           value={km}
           onChange={(e) => setKm(e.target.value)}
           required
+          className="w-full rounded border border-slate-300 px-3 py-2.5"
+        />
+      </div>
+      <div>
+        <label className="mb-1 block text-sm font-medium">{t.trip.description}</label>
+        <input
+          type="text"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
           className="w-full rounded border border-slate-300 px-3 py-2.5"
         />
       </div>

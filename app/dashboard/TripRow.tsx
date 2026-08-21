@@ -10,6 +10,7 @@ interface Trip {
   date: Date
   location: { name: string } | null
   customLocation: string | null
+  description: string | null
   km: number
   isReturnTrip: boolean
 }
@@ -28,7 +29,10 @@ export default function TripRow({ trip, kmRate }: { trip: Trip; kmRate: number }
   return (
     <tr className="border-t border-slate-100">
       <td className="px-4 py-2">{new Date(trip.date).toLocaleDateString(toIntlLocale(locale))}</td>
-      <td className="px-4 py-2">{trip.location?.name ?? trip.customLocation}</td>
+      <td className="px-4 py-2">
+        {trip.location?.name ?? trip.customLocation}
+        {trip.description && <span className="block text-xs text-slate-400">{trip.description}</span>}
+      </td>
       <td className="px-4 py-2">{trip.isReturnTrip ? t.common.yes : t.common.no}</td>
       <td className="px-4 py-2">{km.toFixed(1)}</td>
       <td className="px-4 py-2">&euro; {(km * kmRate).toFixed(2)}</td>

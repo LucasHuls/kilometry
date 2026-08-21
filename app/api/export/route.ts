@@ -23,6 +23,7 @@ export async function GET(req: NextRequest) {
     retour: user.exportIncludeRetour,
     km: user.exportIncludeKm,
     fee: user.exportIncludeFee,
+    description: user.exportIncludeDescription,
   })
 
   return new NextResponse(new Uint8Array(xlsx), {

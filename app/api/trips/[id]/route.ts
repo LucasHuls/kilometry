@@ -13,7 +13,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ error: t.errors.tripNotFound }, { status: 404 })
   }
 
-  const { date, locationId, customLocation, km, isReturnTrip } = await req.json()
+  const { date, locationId, customLocation, description, km, isReturnTrip } = await req.json()
   if (!date || km === undefined || km === null) {
     return NextResponse.json({ error: t.errors.allFieldsRequired }, { status: 400 })
   }
@@ -30,12 +30,15 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     }
   }
 
+  const trimmedDescription = typeof description === 'string' ? description.trim() : ''
+
   const updated = await prisma.trip.update({
     where: { id: params.id },
     data: {
       date: new Date(date),
       locationId: locationId || null,
       customLocation: locationId ? null : trimmedCustomLocation,
+      description: trimmedDescription || null,
       km: Number(km),
       isReturnTrip: isReturnTrip !== false,
     },

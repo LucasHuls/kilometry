@@ -10,6 +10,7 @@ interface Trip {
   date: Date
   location: { name: string } | null
   customLocation: string | null
+  description: string | null
   km: number
   isReturnTrip: boolean
 }
@@ -33,6 +34,7 @@ export default function TripCard({ trip, kmRate }: { trip: Trip; kmRate: number 
           {new Date(trip.date).toLocaleDateString(toIntlLocale(locale))} &middot; {km.toFixed(1)} km
           {trip.isReturnTrip && <> ({t.trip.returnTripShort})</>} &middot; &euro; {(km * kmRate).toFixed(2)}
         </p>
+        {trip.description && <p className="text-xs text-slate-400">{trip.description}</p>}
       </div>
       <div className="flex shrink-0 items-center gap-3 text-sm">
         <a href={`/dashboard/edit/${trip.id}`} className="text-slate-500 hover:underline">
