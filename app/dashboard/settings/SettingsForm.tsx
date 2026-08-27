@@ -12,6 +12,7 @@ interface Props {
   exportIncludeRetour: boolean
   exportIncludeKm: boolean
   exportIncludeFee: boolean
+  exportIncludeDescription: boolean
   fuelTrackingEnabled: boolean
   email: string | null
   emailLocale: string
@@ -28,6 +29,7 @@ export default function SettingsForm({
   exportIncludeRetour,
   exportIncludeKm,
   exportIncludeFee,
+  exportIncludeDescription,
   fuelTrackingEnabled,
   email,
   emailLocale,
@@ -44,6 +46,7 @@ export default function SettingsForm({
   const [includeRetour, setIncludeRetour] = useState(exportIncludeRetour)
   const [includeKm, setIncludeKm] = useState(exportIncludeKm)
   const [includeFee, setIncludeFee] = useState(exportIncludeFee)
+  const [includeDescription, setIncludeDescription] = useState(exportIncludeDescription)
   const [fuelEnabled, setFuelEnabled] = useState(fuelTrackingEnabled)
   const [notifyEmail, setNotifyEmail] = useState(email ?? '')
   const [notifyLocale, setNotifyLocale] = useState(emailLocale)
@@ -69,6 +72,7 @@ export default function SettingsForm({
         exportIncludeRetour: includeRetour,
         exportIncludeKm: includeKm,
         exportIncludeFee: includeFee,
+        exportIncludeDescription: includeDescription,
         fuelTrackingEnabled: fuelEnabled,
         email: notifyEmail,
         emailLocale: notifyLocale,
@@ -177,6 +181,18 @@ export default function SettingsForm({
             />
             <label htmlFor="exportIncludeFee" className="text-sm">
               {t.settings.exportIncludeFee}
+            </label>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              id="exportIncludeDescription"
+              type="checkbox"
+              checked={includeDescription}
+              onChange={(e) => setIncludeDescription(e.target.checked)}
+              className="h-4 w-4 rounded border-slate-300"
+            />
+            <label htmlFor="exportIncludeDescription" className="text-sm">
+              {t.settings.exportIncludeDescription}
             </label>
           </div>
         </div>

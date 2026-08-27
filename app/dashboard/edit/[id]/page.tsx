@@ -27,6 +27,7 @@ export default async function EditTripPage({ params }: { params: { id: string } 
           date: trip.date.toISOString().slice(0, 10),
           locationId: trip.locationId,
           customLocation: trip.customLocation,
+          description: trip.description,
           km: trip.km,
           isReturnTrip: trip.isReturnTrip,
         }}

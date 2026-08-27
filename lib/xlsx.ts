@@ -6,6 +6,7 @@ interface XlsxTrip {
   date: Date
   location: { name: string } | null
   customLocation: string | null
+  description: string | null
   km: number
   isReturnTrip: boolean
 }
@@ -15,6 +16,7 @@ export interface ExportColumns {
   retour: boolean
   km: boolean
   fee: boolean
+  description: boolean
 }
 
 export async function tripsToXlsx(
@@ -32,6 +34,7 @@ export async function tripsToXlsx(
     columns.retour && { header: t.dashboard.colRetour, key: 'retour', width: 10 },
     columns.km && { header: t.dashboard.colKm, key: 'km', width: 10, style: { numFmt: '0.0' } },
     columns.fee && { header: t.dashboard.colFee, key: 'fee', width: 12, style: { numFmt: '"€"0.00' } },
+    columns.description && { header: t.dashboard.colDescription, key: 'description', width: 30 },
   ].filter(Boolean) as ExcelJS.Column[]
 
   sheet.getRow(1).font = { bold: true }
@@ -44,6 +47,7 @@ export async function tripsToXlsx(
       retour: trip.isReturnTrip ? t.common.yes : t.common.no,
       km,
       fee: km * kmRate,
+      description: trip.description ?? '',
     })
   }
 
