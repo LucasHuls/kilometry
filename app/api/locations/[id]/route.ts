@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth'
 import { getT } from '@/lib/i18n/server'
+import { normalizePostcode, normalizeText } from '@/lib/normalize'
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   const user = await getCurrentUser()
@@ -14,12 +15,22 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ error: t.errors.locationNotFound }, { status: 404 })
   }
 
-  const { name, fixedKm, isDefault } = await req.json()
-  if (!name || fixedKm === undefined || fixedKm === null) {
+  const { name, fixedKm, address, postcode, placeId, isDefault } = await req.json()
+  const normalizedName = normalizeText(name)
+  if (!normalizedName || fixedKm === undefined || fixedKm === null) {
     return NextResponse.json({ error: t.errors.allFieldsRequired }, { status: 400 })
   }
   if (Number(fixedKm) < 0) {
     return NextResponse.json({ error: t.errors.kmMustBePositive }, { status: 400 })
+  }
+  const normalizedAddress = normalizeText(address)
+  const normalizedPlaceId = normalizeText(placeId)
+  if (normalizedName === 'invalid' || normalizedAddress === 'invalid' || normalizedPlaceId === 'invalid') {
+    return NextResponse.json({ error: t.errors.textTooLong }, { status: 400 })
+  }
+  const normalizedPostcode = normalizePostcode(postcode)
+  if (normalizedPostcode === 'invalid') {
+    return NextResponse.json({ error: t.errors.invalidPostcode }, { status: 400 })
   }
 
   const shouldBeDefault = location.isDefault || Boolean(isDefault)
@@ -30,7 +41,14 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     }
     return tx.location.update({
       where: { id: params.id },
-      data: { name, fixedKm: Number(fixedKm), isDefault: shouldBeDefault },
+      data: {
+        name: normalizedName,
+        fixedKm: Number(fixedKm),
+        address: normalizedAddress,
+        postcode: normalizedPostcode,
+        placeId: normalizedAddress ? normalizedPlaceId : null,
+        isDefault: shouldBeDefault,
+      },
     })
   })
 

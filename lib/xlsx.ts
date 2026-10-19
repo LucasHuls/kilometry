@@ -1,13 +1,14 @@
 import ExcelJS from 'exceljs'
 import { Dictionary } from './i18n/dictionaries'
 import { effectiveKm } from './tripKm'
+import { destinationsLabel, routePostcodes, StopView } from './tripStops'
 
 interface XlsxTrip {
   date: Date
-  location: { name: string } | null
-  customLocation: string | null
+  stops: StopView[]
   description: string | null
   km: number
+  returnKm: number | null
   isReturnTrip: boolean
 }
 
@@ -17,11 +18,13 @@ export interface ExportColumns {
   km: boolean
   fee: boolean
   description: boolean
+  postcodes: boolean
 }
 
 export async function tripsToXlsx(
   trips: XlsxTrip[],
   kmRate: number,
+  homePostcode: string | null,
   t: Dictionary,
   columns: ExportColumns
 ): Promise<Buffer> {
@@ -31,6 +34,9 @@ export async function tripsToXlsx(
   sheet.columns = [
     { header: t.dashboard.colDate, key: 'date', width: 12, style: { numFmt: 'yyyy-mm-dd' } },
     columns.location && { header: t.dashboard.colLocation, key: 'location', width: 28 },
+    columns.postcodes && { header: t.dashboard.colPostcodeFrom, key: 'postcodeFrom', width: 14 },
+    columns.postcodes && { header: t.dashboard.colPostcodeVia, key: 'postcodeVia', width: 18 },
+    columns.postcodes && { header: t.dashboard.colPostcodeTo, key: 'postcodeTo', width: 14 },
     columns.retour && { header: t.dashboard.colRetour, key: 'retour', width: 10 },
     columns.km && { header: t.dashboard.colKm, key: 'km', width: 10, style: { numFmt: '0.0' } },
     columns.fee && { header: t.dashboard.colFee, key: 'fee', width: 12, style: { numFmt: '"€"0.00' } },
@@ -41,9 +47,13 @@ export async function tripsToXlsx(
 
   for (const trip of trips) {
     const km = effectiveKm(trip)
+    const postcodes = routePostcodes(trip.stops, homePostcode)
     sheet.addRow({
       date: trip.date,
-      location: trip.location?.name ?? trip.customLocation ?? '',
+      location: destinationsLabel(trip.stops),
+      postcodeFrom: postcodes.from ?? '',
+      postcodeVia: postcodes.via.join(', '),
+      postcodeTo: postcodes.to ?? '',
       retour: trip.isReturnTrip ? t.common.yes : t.common.no,
       km,
       fee: km * kmRate,

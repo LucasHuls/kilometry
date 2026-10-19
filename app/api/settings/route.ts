@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth'
 import { getT } from '@/lib/i18n/server'
 import { locales, defaultLocale } from '@/lib/i18n/dictionaries'
+import { normalizePostcode, normalizeText } from '@/lib/normalize'
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -19,6 +20,10 @@ export async function PUT(req: NextRequest) {
     exportIncludeKm,
     exportIncludeFee,
     exportIncludeDescription,
+    exportIncludePostcodes,
+    homeAddress,
+    homePostcode,
+    homePlaceId,
     fuelTrackingEnabled,
     email,
     emailLocale,
@@ -48,6 +53,20 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: t.errors.invalidDay }, { status: 400 })
   }
 
+  const normalizedHomeAddress = normalizeText(homeAddress)
+  const normalizedHomePlaceId = normalizeText(homePlaceId)
+  const normalizedHomePostcode = normalizePostcode(homePostcode)
+  if (normalizedHomeAddress === 'invalid' || normalizedHomePlaceId === 'invalid') {
+    return NextResponse.json({ error: t.errors.textTooLong }, { status: 400 })
+  }
+  if (normalizedHomePostcode === 'invalid') {
+    return NextResponse.json({ error: t.errors.invalidPostcode }, { status: 400 })
+  }
+  // The home address becomes a trip's starting point, and every stop needs a postcode.
+  if (normalizedHomeAddress && !normalizedHomePostcode) {
+    return NextResponse.json({ error: t.errors.postcodeRequired }, { status: 400 })
+  }
+
   const resolvedEmailLocale = locales.includes(emailLocale) ? emailLocale : defaultLocale
 
   const updated = await prisma.user.update({
@@ -60,6 +79,10 @@ export async function PUT(req: NextRequest) {
       exportIncludeKm: Boolean(exportIncludeKm),
       exportIncludeFee: Boolean(exportIncludeFee),
       exportIncludeDescription: Boolean(exportIncludeDescription),
+      exportIncludePostcodes: Boolean(exportIncludePostcodes),
+      homeAddress: normalizedHomeAddress,
+      homePostcode: normalizedHomePostcode,
+      homePlaceId: normalizedHomeAddress ? normalizedHomePlaceId : null,
       fuelTrackingEnabled: Boolean(fuelTrackingEnabled),
       email: trimmedEmail || null,
       emailLocale: resolvedEmailLocale,

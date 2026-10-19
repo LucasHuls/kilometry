@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { readErrorMessage } from '@/lib/api'
 import { useLocale } from '@/lib/i18n/LocaleProvider'
+import AddressInput, { AddressValue } from '@/components/AddressInput'
 
 interface Props {
   kmRate: number
@@ -13,6 +14,11 @@ interface Props {
   exportIncludeKm: boolean
   exportIncludeFee: boolean
   exportIncludeDescription: boolean
+  exportIncludePostcodes: boolean
+  homeAddress: string | null
+  homePostcode: string | null
+  homePlaceId: string | null
+  mapsEnabled: boolean
   fuelTrackingEnabled: boolean
   email: string | null
   emailLocale: string
@@ -30,6 +36,11 @@ export default function SettingsForm({
   exportIncludeKm,
   exportIncludeFee,
   exportIncludeDescription,
+  exportIncludePostcodes,
+  homeAddress,
+  homePostcode,
+  homePlaceId,
+  mapsEnabled,
   fuelTrackingEnabled,
   email,
   emailLocale,
@@ -47,6 +58,12 @@ export default function SettingsForm({
   const [includeKm, setIncludeKm] = useState(exportIncludeKm)
   const [includeFee, setIncludeFee] = useState(exportIncludeFee)
   const [includeDescription, setIncludeDescription] = useState(exportIncludeDescription)
+  const [includePostcodes, setIncludePostcodes] = useState(exportIncludePostcodes)
+  const [home, setHome] = useState<AddressValue>({
+    address: homeAddress ?? '',
+    postcode: homePostcode ?? '',
+    placeId: homePlaceId ?? '',
+  })
   const [fuelEnabled, setFuelEnabled] = useState(fuelTrackingEnabled)
   const [notifyEmail, setNotifyEmail] = useState(email ?? '')
   const [notifyLocale, setNotifyLocale] = useState(emailLocale)
@@ -73,6 +90,10 @@ export default function SettingsForm({
         exportIncludeKm: includeKm,
         exportIncludeFee: includeFee,
         exportIncludeDescription: includeDescription,
+        exportIncludePostcodes: includePostcodes,
+        homeAddress: home.address,
+        homePostcode: home.postcode,
+        homePlaceId: home.placeId,
         fuelTrackingEnabled: fuelEnabled,
         email: notifyEmail,
         emailLocale: notifyLocale,
@@ -103,6 +124,16 @@ export default function SettingsForm({
           onChange={(e) => setRate(e.target.value)}
           required
           className="w-full rounded border border-slate-300 px-3 py-2.5"
+        />
+      </div>
+
+      <div>
+        <p className="mb-2 text-sm font-medium">{t.settings.homeAddressTitle}</p>
+        <AddressInput
+          value={home}
+          onChange={setHome}
+          mapsEnabled={mapsEnabled}
+          postcodeRequired={Boolean(home.address.trim())}
         />
       </div>
 
@@ -193,6 +224,18 @@ export default function SettingsForm({
             />
             <label htmlFor="exportIncludeDescription" className="text-sm">
               {t.settings.exportIncludeDescription}
+            </label>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              id="exportIncludePostcodes"
+              type="checkbox"
+              checked={includePostcodes}
+              onChange={(e) => setIncludePostcodes(e.target.checked)}
+              className="h-4 w-4 rounded border-slate-300"
+            />
+            <label htmlFor="exportIncludePostcodes" className="text-sm">
+              {t.settings.exportIncludePostcodes}
             </label>
           </div>
         </div>

@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth'
 import { tripsToXlsx } from '@/lib/xlsx'
 import { getT } from '@/lib/i18n/server'
-import { monthRange } from '@/lib/trips'
+import { monthRange, tripStopsInclude } from '@/lib/trips'
 
 export async function GET(req: NextRequest) {
   const user = await getCurrentUser()
@@ -17,13 +17,14 @@ export async function GET(req: NextRequest) {
     where.date = monthRange(month)
   }
 
-  const trips = await prisma.trip.findMany({ where, include: { location: true }, orderBy: { date: 'desc' } })
-  const xlsx = await tripsToXlsx(trips, user.kmRate, t, {
+  const trips = await prisma.trip.findMany({ where, include: tripStopsInclude, orderBy: { date: 'desc' } })
+  const xlsx = await tripsToXlsx(trips, user.kmRate, user.homePostcode, t, {
     location: user.exportIncludeLocation,
     retour: user.exportIncludeRetour,
     km: user.exportIncludeKm,
     fee: user.exportIncludeFee,
     description: user.exportIncludeDescription,
+    postcodes: user.exportIncludePostcodes,
   })
 
   return new NextResponse(new Uint8Array(xlsx), {

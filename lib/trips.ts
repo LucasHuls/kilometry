@@ -1,5 +1,10 @@
+import { Prisma } from '@prisma/client'
 import { prisma } from './prisma'
 import { effectiveKm } from './tripKm'
+
+export const tripStopsInclude = {
+  stops: { orderBy: { position: 'asc' }, include: { location: true } },
+} satisfies Prisma.TripInclude
 
 export function monthRange(month: string) {
   const [year, m] = month.split('-').map(Number)
@@ -21,7 +26,7 @@ export async function getMonthlyTotals(userId: string, kmRate: number, months = 
 
   const trips = await prisma.trip.findMany({
     where: { userId, date: { gte: start } },
-    select: { date: true, km: true, isReturnTrip: true },
+    select: { date: true, km: true, returnKm: true, isReturnTrip: true },
   })
 
   const buckets = new Map<string, number>()
@@ -42,4 +47,13 @@ export async function getMonthlyTotals(userId: string, kmRate: number, months = 
     km,
     fee: km * kmRate,
   }))
+}
+
+export function homeAddressOf(user: {
+  homeAddress: string | null
+  homePostcode: string | null
+  homePlaceId: string | null
+}) {
+  if (!user.homeAddress) return null
+  return { address: user.homeAddress, postcode: user.homePostcode, placeId: user.homePlaceId }
 }

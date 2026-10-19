@@ -3,13 +3,16 @@
 import { useRouter } from 'next/navigation'
 import { readErrorMessage } from '@/lib/api'
 import { useLocale } from '@/lib/i18n/LocaleProvider'
+import { formatAddress } from '@/lib/normalize'
 
 interface Location {
   id: string
   name: string
   fixedKm: number
+  address: string | null
+  postcode: string | null
   isDefault: boolean
-  _count: { trips: number }
+  _count: { stops: number }
 }
 
 export default function LocationRow({ location }: { location: Location }) {
@@ -37,7 +40,10 @@ export default function LocationRow({ location }: { location: Location }) {
         )}
       </td>
       <td className="px-4 py-2">{location.fixedKm.toFixed(1)} km</td>
-      <td className="px-4 py-2 text-slate-500">{t.location.usedCount(location._count.trips)}</td>
+      <td className="px-4 py-2 text-slate-600">
+        {formatAddress(location.address, location.postcode) || '-'}
+      </td>
+      <td className="px-4 py-2 text-slate-500">{t.location.usedCount(location._count.stops)}</td>
       <td className="px-4 py-2 text-right">
         <a href={`/dashboard/locations/edit/${location.id}`} className="mr-3 text-slate-500 hover:underline">
           {t.common.edit}
