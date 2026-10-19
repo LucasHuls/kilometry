@@ -2,6 +2,7 @@
 
 export interface StopView {
   position: number
+  isHome: boolean
   name: string | null
   address: string | null
   postcode: string | null
@@ -12,34 +13,28 @@ function sortStops<T extends { position: number }>(stops: T[]): T[] {
   return [...stops].sort((a, b) => a.position - b.position)
 }
 
-export function stopLabel(stop: StopView): string {
+function stopLabel(stop: StopView, homeLabel: string): string {
+  if (stop.isHome) return homeLabel
   return stop.location?.name ?? stop.name ?? stop.address ?? ''
 }
 
-export function stopPostcode(stop: StopView): string | null {
+function stopPostcode(stop: StopView, homePostcode: string | null): string | null {
+  if (stop.isHome) return homePostcode
   return stop.location ? stop.location.postcode : stop.postcode
 }
 
-function destinations<T extends { position: number }>(stops: T[]): T[] {
-  const sorted = sortStops(stops)
-  return sorted.length > 1 ? sorted.slice(1) : sorted
-}
-
-export function destinationsLabel(stops: StopView[]): string {
-  return destinations(stops).map(stopLabel).join(' → ')
+export function destinationsLabel(stops: StopView[], homeLabel: string): string {
+  return sortStops(stops)
+    .slice(1)
+    .map((stop) => stopLabel(stop, homeLabel))
+    .join(' → ')
 }
 
 export function routePostcodes(stops: StopView[], homePostcode: string | null) {
-  const sorted = sortStops(stops)
-  if (sorted.length <= 1) {
-    return { from: homePostcode, via: [] as string[], to: sorted[0] ? stopPostcode(sorted[0]) : null }
-  }
+  const postcodes = sortStops(stops).map((stop) => stopPostcode(stop, homePostcode))
   return {
-    from: stopPostcode(sorted[0]),
-    via: sorted
-      .slice(1, -1)
-      .map(stopPostcode)
-      .filter((p): p is string => Boolean(p)),
-    to: stopPostcode(sorted[sorted.length - 1]),
+    from: postcodes[0] ?? null,
+    via: postcodes.slice(1, -1).filter((p): p is string => Boolean(p)),
+    to: postcodes.length > 1 ? postcodes[postcodes.length - 1] : null,
   }
 }

@@ -26,7 +26,7 @@ Want address autocomplete and automatically calculated km? Set `GOOGLE_MAPS_API_
 
 ## Data model
 
-Every trip has a date, a route, and a number of km. A route is a starting point (by default your home address, see settings) plus one or more destinations, so `A -> B -> C` trips work too. Each stop is either one of your saved locations (name, address, postcode, and an optional fixed distance from home) or a one-off address with a postcode. The km are calculated via Google Maps when it's configured, or pre-filled from a location's fixed distance, and always stay overridable. A return trip adds the way back from the last stop to the starting point.
+Every trip has a date, a route, and a number of km. A route is a starting point (by default home) plus one or more destinations, so `A -> B -> C` trips work too. Each stop is your home, one of your saved locations, or a one-off address with a postcode. Every location has an address and postcode, and its km from home are either entered by you or calculated per trip via Google Maps. A new trip defaults to home -> your default location, with that location's km filled in. A return trip adds the way back from the last stop to the starting point.
 
 ![Adding a multi-stop trip](docs/screenshot-route.png)
 

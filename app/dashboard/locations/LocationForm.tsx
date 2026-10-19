@@ -4,16 +4,15 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { readErrorMessage } from '@/lib/api'
 import { useLocale } from '@/lib/i18n/LocaleProvider'
-import { fetchRouteLegsKm, roundKm } from '@/lib/routeClient'
 import AddressInput, { AddressValue } from '@/components/AddressInput'
 
 interface Props {
   locationId?: string
   mapsEnabled: boolean
-  home: { address: string; placeId: string | null } | null
   initial?: {
     name: string
     fixedKm: number
+    kmFromRoute: boolean
     address: string | null
     postcode: string | null
     placeId: string | null
@@ -21,36 +20,20 @@ interface Props {
   }
 }
 
-export default function LocationForm({ locationId, mapsEnabled, home, initial }: Props) {
+export default function LocationForm({ locationId, mapsEnabled, initial }: Props) {
   const router = useRouter()
   const { t } = useLocale()
   const [name, setName] = useState(initial?.name ?? '')
-  const [fixedKm, setFixedKm] = useState(String(initial?.fixedKm ?? 0))
   const [address, setAddress] = useState<AddressValue>({
     address: initial?.address ?? '',
     postcode: initial?.postcode ?? '',
     placeId: initial?.placeId ?? '',
   })
+  const [kmFromRoute, setKmFromRoute] = useState(mapsEnabled && (initial?.kmFromRoute ?? false))
+  const [fixedKm, setFixedKm] = useState(String(initial?.fixedKm ?? 0))
   const [isDefault, setIsDefault] = useState(initial?.isDefault ?? false)
-  const [distanceStatus, setDistanceStatus] = useState<'idle' | 'loading' | 'done' | 'failed'>('idle')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-
-  async function handleAddressChange(next: AddressValue) {
-    setAddress(next)
-    if (!mapsEnabled || !home || !next.placeId || next.placeId === address.placeId) return
-    setDistanceStatus('loading')
-    const legs = await fetchRouteLegsKm([
-      { placeId: home.placeId, address: home.address },
-      { placeId: next.placeId, address: next.address },
-    ])
-    if (legs) {
-      setFixedKm(String(roundKm(legs[0])))
-      setDistanceStatus('done')
-    } else {
-      setDistanceStatus('failed')
-    }
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -62,10 +45,11 @@ export default function LocationForm({ locationId, mapsEnabled, home, initial }:
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name,
-        fixedKm: Number(fixedKm),
         address: address.address,
         postcode: address.postcode,
         placeId: address.placeId,
+        kmFromRoute,
+        fixedKm: Number(fixedKm),
         isDefault,
       }),
     })
@@ -94,26 +78,50 @@ export default function LocationForm({ locationId, mapsEnabled, home, initial }:
       </div>
       <AddressInput
         value={address}
-        onChange={handleAddressChange}
+        onChange={setAddress}
         onPickEstablishment={(placeName) => setName((current) => current || placeName)}
         mapsEnabled={mapsEnabled}
+        addressRequired
+        postcodeRequired
       />
       <div>
-        <label className="mb-1 block text-sm font-medium">{t.location.fixedKm}</label>
-        <input
-          type="number"
-          step="0.1"
-          min="0"
-          value={fixedKm}
-          onChange={(e) => setFixedKm(e.target.value)}
-          required
-          className="w-full rounded border border-slate-300 px-3 py-2.5"
-        />
-        {distanceStatus === 'loading' && <p className="mt-1 text-xs text-slate-500">{t.trip.distanceCalculating}</p>}
-        {distanceStatus === 'done' && (
-          <p className="mt-1 text-xs text-slate-500">{t.trip.distanceCalculated(fixedKm)}</p>
+        <p className="mb-2 text-sm font-medium">{t.location.kmSource}</p>
+        {mapsEnabled && (
+          <div className="mb-2 space-y-2">
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="radio"
+                name="kmSource"
+                checked={!kmFromRoute}
+                onChange={() => setKmFromRoute(false)}
+                className="h-4 w-4 border-slate-300"
+              />
+              {t.location.kmManual}
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="radio"
+                name="kmSource"
+                checked={kmFromRoute}
+                onChange={() => setKmFromRoute(true)}
+                className="h-4 w-4 border-slate-300"
+              />
+              {t.location.kmRoute}
+            </label>
+          </div>
         )}
-        {distanceStatus === 'failed' && <p className="mt-1 text-xs text-amber-600">{t.trip.distanceFailed}</p>}
+        {!kmFromRoute && (
+          <input
+            type="number"
+            step="0.1"
+            min="0"
+            value={fixedKm}
+            onChange={(e) => setFixedKm(e.target.value)}
+            required
+            aria-label={t.location.fixedKm}
+            className="w-full rounded border border-slate-300 px-3 py-2.5"
+          />
+        )}
       </div>
       <label className="flex items-center gap-2 text-sm">
         <input

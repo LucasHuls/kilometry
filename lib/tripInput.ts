@@ -6,6 +6,7 @@ export const MAX_TRIP_STOPS = 10
 
 export interface ParsedStop {
   position: number
+  isHome: boolean
   locationId: string | null
   name: string | null
   address: string | null
@@ -56,8 +57,13 @@ export async function parseTripBody(
 
   const parsedStops: ParsedStop[] = []
   for (const [position, stop] of stops.entries()) {
+    const empty = { isHome: false, locationId: null, name: null, address: null, postcode: null, placeId: null }
+    if (stop?.isHome === true) {
+      parsedStops.push({ ...empty, position, isHome: true })
+      continue
+    }
     if (typeof stop?.locationId === 'string' && stop.locationId) {
-      parsedStops.push({ position, locationId: stop.locationId, name: null, address: null, postcode: null, placeId: null })
+      parsedStops.push({ ...empty, position, locationId: stop.locationId })
       continue
     }
     // The export needs a postcode for every stop.
@@ -69,7 +75,7 @@ export async function parseTripBody(
     const postcode = normalizePostcode(stop?.postcode)
     if (postcode === 'invalid') return { error: t.errors.invalidPostcode }
     if (!postcode) return { error: t.errors.postcodeRequired }
-    parsedStops.push({ position, locationId: null, name, address, postcode, placeId: address ? placeId : null })
+    parsedStops.push({ ...empty, position, name, address, postcode, placeId: address ? placeId : null })
   }
 
   const trimmedDescription = normalizeText(description)

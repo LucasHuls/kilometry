@@ -3,7 +3,6 @@ import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth'
 import { getT } from '@/lib/i18n/server'
 import { isMapsEnabled } from '@/lib/maps'
-import { homeAddressOf } from '@/lib/trips'
 import LocationForm from '../../LocationForm'
 
 export default async function EditLocationPage({ params }: { params: Promise<{ id: string }> }) {
@@ -22,10 +21,10 @@ export default async function EditLocationPage({ params }: { params: Promise<{ i
       <LocationForm
         locationId={location.id}
         mapsEnabled={isMapsEnabled()}
-        home={homeAddressOf(user)}
         initial={{
           name: location.name,
           fixedKm: location.fixedKm,
+          kmFromRoute: location.kmFromRoute,
           address: location.address,
           postcode: location.postcode,
           placeId: location.placeId,

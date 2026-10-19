@@ -9,6 +9,7 @@ interface Location {
   id: string
   name: string
   fixedKm: number
+  kmFromRoute: boolean
   address: string | null
   postcode: string | null
   isDefault: boolean
@@ -46,7 +47,7 @@ export default function LocationCard({ location }: { location: Location }) {
           </p>
         )}
         <p className="text-sm text-slate-500">
-          {location.fixedKm.toFixed(1)} km &middot; {t.location.usedCount(location._count.stops)}
+          {location.kmFromRoute ? t.location.viaRoute : `${location.fixedKm.toFixed(1)} km`} &middot; {t.location.usedCount(location._count.stops)}
         </p>
       </div>
       <div className="flex shrink-0 items-center gap-3 text-sm">

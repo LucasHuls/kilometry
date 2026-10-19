@@ -30,7 +30,7 @@ export default function TripCard({ trip, kmRate }: { trip: Trip; kmRate: number 
   return (
     <div className="flex items-center justify-between px-4 py-3">
       <div>
-        <p className="font-medium">{destinationsLabel(trip.stops)}</p>
+        <p className="font-medium">{destinationsLabel(trip.stops, t.trip.homeOption)}</p>
         <p className="text-sm text-slate-500">
           {new Date(trip.date).toLocaleDateString(toIntlLocale(locale))} &middot; {km.toFixed(1)} km
           {trip.isReturnTrip && <> ({t.trip.returnTripShort})</>} &middot; &euro; {(km * kmRate).toFixed(2)}
