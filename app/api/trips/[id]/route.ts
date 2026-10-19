@@ -5,12 +5,13 @@ import { getT } from '@/lib/i18n/server'
 import { parseTripBody } from '@/lib/tripInput'
 import { tripStopsInclude } from '@/lib/trips'
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const user = await getCurrentUser()
   const { t } = await getT()
   if (!user) return NextResponse.json({ error: t.errors.notLoggedIn }, { status: 401 })
 
-  const trip = await prisma.trip.findUnique({ where: { id: params.id } })
+  const trip = await prisma.trip.findUnique({ where: { id } })
   if (!trip || trip.userId !== user.id) {
     return NextResponse.json({ error: t.errors.tripNotFound }, { status: 404 })
   }
@@ -20,9 +21,9 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   const { stops, ...data } = parsed.data
 
   const updated = await prisma.$transaction(async (tx) => {
-    await tx.tripStop.deleteMany({ where: { tripId: params.id } })
+    await tx.tripStop.deleteMany({ where: { tripId: id } })
     return tx.trip.update({
-      where: { id: params.id },
+      where: { id },
       data: { ...data, stops: { create: stops } },
       include: tripStopsInclude,
     })
@@ -31,16 +32,17 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   return NextResponse.json(updated)
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const user = await getCurrentUser()
   const { t } = await getT()
   if (!user) return NextResponse.json({ error: t.errors.notLoggedIn }, { status: 401 })
 
-  const trip = await prisma.trip.findUnique({ where: { id: params.id } })
+  const trip = await prisma.trip.findUnique({ where: { id } })
   if (!trip || trip.userId !== user.id) {
     return NextResponse.json({ error: t.errors.tripNotFound }, { status: 404 })
   }
 
-  await prisma.trip.delete({ where: { id: params.id } })
+  await prisma.trip.delete({ where: { id } })
   return NextResponse.json({ ok: true })
 }

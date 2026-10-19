@@ -3,12 +3,13 @@ import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth'
 import { getT } from '@/lib/i18n/server'
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const user = await getCurrentUser()
   const { t } = await getT()
   if (!user) return NextResponse.json({ error: t.errors.notLoggedIn }, { status: 401 })
 
-  const entry = await prisma.fuelEntry.findUnique({ where: { id: params.id } })
+  const entry = await prisma.fuelEntry.findUnique({ where: { id } })
   if (!entry || entry.userId !== user.id) {
     return NextResponse.json({ error: t.errors.fuelEntryNotFound }, { status: 404 })
   }
@@ -25,7 +26,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 
   const updated = await prisma.fuelEntry.update({
-    where: { id: params.id },
+    where: { id },
     data: {
       date: new Date(date),
       odometer: Number(odometer),
@@ -37,16 +38,17 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   return NextResponse.json(updated)
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const user = await getCurrentUser()
   const { t } = await getT()
   if (!user) return NextResponse.json({ error: t.errors.notLoggedIn }, { status: 401 })
 
-  const entry = await prisma.fuelEntry.findUnique({ where: { id: params.id } })
+  const entry = await prisma.fuelEntry.findUnique({ where: { id } })
   if (!entry || entry.userId !== user.id) {
     return NextResponse.json({ error: t.errors.fuelEntryNotFound }, { status: 404 })
   }
 
-  await prisma.fuelEntry.delete({ where: { id: params.id } })
+  await prisma.fuelEntry.delete({ where: { id } })
   return NextResponse.json({ ok: true })
 }

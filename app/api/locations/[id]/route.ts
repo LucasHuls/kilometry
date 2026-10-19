@@ -5,12 +5,13 @@ import { getCurrentUser } from '@/lib/auth'
 import { getT } from '@/lib/i18n/server'
 import { normalizePostcode, normalizeText } from '@/lib/normalize'
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const user = await getCurrentUser()
   const { t } = await getT()
   if (!user) return NextResponse.json({ error: t.errors.notLoggedIn }, { status: 401 })
 
-  const location = await prisma.location.findFirst({ where: { id: params.id, userId: user.id } })
+  const location = await prisma.location.findFirst({ where: { id, userId: user.id } })
   if (!location) {
     return NextResponse.json({ error: t.errors.locationNotFound }, { status: 404 })
   }
@@ -40,7 +41,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       await tx.location.updateMany({ where: { userId: user.id }, data: { isDefault: false } })
     }
     return tx.location.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name: normalizedName,
         fixedKm: Number(fixedKm),
@@ -55,12 +56,13 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   return NextResponse.json(updated)
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const user = await getCurrentUser()
   const { t } = await getT()
   if (!user) return NextResponse.json({ error: t.errors.notLoggedIn }, { status: 401 })
 
-  const location = await prisma.location.findFirst({ where: { id: params.id, userId: user.id } })
+  const location = await prisma.location.findFirst({ where: { id, userId: user.id } })
   if (!location) {
     return NextResponse.json({ error: t.errors.locationNotFound }, { status: 404 })
   }
@@ -71,7 +73,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
   }
 
   try {
-    await prisma.location.delete({ where: { id: params.id } })
+    await prisma.location.delete({ where: { id } })
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2003') {
       return NextResponse.json({ error: t.errors.locationInUse }, { status: 409 })
