@@ -15,11 +15,7 @@ const path = require('path')
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
-  experimental: {
-    // Next 14.x still needs this flag for instrumentation.ts to run.
-    instrumentationHook: true,
-    serverComponentsExternalPackages: ['node-cron', 'resend'],
-  },
+  serverExternalPackages: ['node-cron', 'resend'],
   webpack: (config, { nextRuntime }) => {
     // instrumentation.ts also compiles for the edge runtime, which can't bundle
     // node-cron/resend's node: built-ins. Keep the scheduler out of that build.

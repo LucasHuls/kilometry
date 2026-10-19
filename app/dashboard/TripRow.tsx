@@ -31,7 +31,7 @@ export default function TripRow({ trip, kmRate }: { trip: Trip; kmRate: number }
     <tr className="border-t border-slate-100">
       <td className="px-4 py-2">{new Date(trip.date).toLocaleDateString(toIntlLocale(locale))}</td>
       <td className="px-4 py-2">
-        {destinationsLabel(trip.stops)}
+        {destinationsLabel(trip.stops, t.trip.homeOption)}
         {trip.description && <span className="block text-xs text-slate-400">{trip.description}</span>}
       </td>
       <td className="px-4 py-2">{trip.isReturnTrip ? t.common.yes : t.common.no}</td>

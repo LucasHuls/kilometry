@@ -11,13 +11,13 @@ import MonthlyChart from './MonthlyChart'
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: { month?: string }
+  searchParams: Promise<{ month?: string }>
 }) {
   const user = await getCurrentUser()
   if (!user) return null
 
   const { t } = await getT()
-  const month = searchParams.month || currentMonthKey()
+  const month = (await searchParams).month || currentMonthKey()
 
   const [filteredTrips, allTrips, monthlyTotals] = await Promise.all([
     prisma.trip.findMany({

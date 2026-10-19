@@ -50,7 +50,7 @@ export async function tripsToXlsx(
     const postcodes = routePostcodes(trip.stops, homePostcode)
     sheet.addRow({
       date: trip.date,
-      location: destinationsLabel(trip.stops),
+      location: destinationsLabel(trip.stops, t.trip.homeOption),
       postcodeFrom: postcodes.from ?? '',
       postcodeVia: postcodes.via.join(', '),
       postcodeTo: postcodes.to ?? '',

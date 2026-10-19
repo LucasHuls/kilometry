@@ -3,14 +3,14 @@ import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth'
 import { getT } from '@/lib/i18n/server'
 import { isMapsEnabled } from '@/lib/maps'
-import { homeAddressOf } from '@/lib/trips'
 import LocationForm from '../../LocationForm'
 
-export default async function EditLocationPage({ params }: { params: { id: string } }) {
+export default async function EditLocationPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const user = await getCurrentUser()
   if (!user) return null
 
-  const location = await prisma.location.findUnique({ where: { id: params.id } })
+  const location = await prisma.location.findUnique({ where: { id } })
   if (!location || location.userId !== user.id) notFound()
 
   const { t } = await getT()
@@ -21,10 +21,10 @@ export default async function EditLocationPage({ params }: { params: { id: strin
       <LocationForm
         locationId={location.id}
         mapsEnabled={isMapsEnabled()}
-        home={homeAddressOf(user)}
         initial={{
           name: location.name,
           fixedKm: location.fixedKm,
+          kmFromRoute: location.kmFromRoute,
           address: location.address,
           postcode: location.postcode,
           placeId: location.placeId,

@@ -6,11 +6,12 @@ import { isMapsEnabled } from '@/lib/maps'
 import { homeAddressOf } from '@/lib/trips'
 import TripForm from '../../TripForm'
 
-export default async function EditTripPage({ params }: { params: { id: string } }) {
+export default async function EditTripPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const user = await getCurrentUser()
   if (!user) return null
 
-  const trip = await prisma.trip.findUnique({ where: { id: params.id }, include: { stops: true } })
+  const trip = await prisma.trip.findUnique({ where: { id }, include: { stops: true } })
   if (!trip || trip.userId !== user.id) notFound()
 
   const { t } = await getT()

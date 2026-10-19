@@ -3,64 +3,46 @@ import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth'
 import { getT } from '@/lib/i18n/server'
-import { normalizePostcode, normalizeText } from '@/lib/normalize'
+import { parseLocationBody } from '@/lib/locationInput'
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const user = await getCurrentUser()
   const { t } = await getT()
   if (!user) return NextResponse.json({ error: t.errors.notLoggedIn }, { status: 401 })
 
-  const location = await prisma.location.findFirst({ where: { id: params.id, userId: user.id } })
+  const location = await prisma.location.findFirst({ where: { id, userId: user.id } })
   if (!location) {
     return NextResponse.json({ error: t.errors.locationNotFound }, { status: 404 })
   }
 
-  const { name, fixedKm, address, postcode, placeId, isDefault } = await req.json()
-  const normalizedName = normalizeText(name)
-  if (!normalizedName || fixedKm === undefined || fixedKm === null) {
-    return NextResponse.json({ error: t.errors.allFieldsRequired }, { status: 400 })
-  }
-  if (Number(fixedKm) < 0) {
-    return NextResponse.json({ error: t.errors.kmMustBePositive }, { status: 400 })
-  }
-  const normalizedAddress = normalizeText(address)
-  const normalizedPlaceId = normalizeText(placeId)
-  if (normalizedName === 'invalid' || normalizedAddress === 'invalid' || normalizedPlaceId === 'invalid') {
-    return NextResponse.json({ error: t.errors.textTooLong }, { status: 400 })
-  }
-  const normalizedPostcode = normalizePostcode(postcode)
-  if (normalizedPostcode === 'invalid') {
-    return NextResponse.json({ error: t.errors.invalidPostcode }, { status: 400 })
-  }
+  const body = await req.json()
+  const parsed = parseLocationBody(body, t)
+  if ('error' in parsed) return NextResponse.json({ error: parsed.error }, { status: 400 })
+  const isDefault = Boolean(body.isDefault)
 
-  const shouldBeDefault = location.isDefault || Boolean(isDefault)
+  const shouldBeDefault = location.isDefault || isDefault
 
   const updated = await prisma.$transaction(async (tx) => {
     if (shouldBeDefault) {
       await tx.location.updateMany({ where: { userId: user.id }, data: { isDefault: false } })
     }
     return tx.location.update({
-      where: { id: params.id },
-      data: {
-        name: normalizedName,
-        fixedKm: Number(fixedKm),
-        address: normalizedAddress,
-        postcode: normalizedPostcode,
-        placeId: normalizedAddress ? normalizedPlaceId : null,
-        isDefault: shouldBeDefault,
-      },
+      where: { id },
+      data: { ...parsed.data, isDefault: shouldBeDefault },
     })
   })
 
   return NextResponse.json(updated)
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const user = await getCurrentUser()
   const { t } = await getT()
   if (!user) return NextResponse.json({ error: t.errors.notLoggedIn }, { status: 401 })
 
-  const location = await prisma.location.findFirst({ where: { id: params.id, userId: user.id } })
+  const location = await prisma.location.findFirst({ where: { id, userId: user.id } })
   if (!location) {
     return NextResponse.json({ error: t.errors.locationNotFound }, { status: 404 })
   }
@@ -71,7 +53,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
   }
 
   try {
-    await prisma.location.delete({ where: { id: params.id } })
+    await prisma.location.delete({ where: { id } })
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2003') {
       return NextResponse.json({ error: t.errors.locationInUse }, { status: 409 })

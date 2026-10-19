@@ -9,6 +9,7 @@ interface Location {
   id: string
   name: string
   fixedKm: number
+  kmFromRoute: boolean
   address: string | null
   postcode: string | null
   isDefault: boolean
@@ -39,7 +40,7 @@ export default function LocationRow({ location }: { location: Location }) {
           </span>
         )}
       </td>
-      <td className="px-4 py-2">{location.fixedKm.toFixed(1)} km</td>
+      <td className="px-4 py-2">{location.kmFromRoute ? t.location.viaRoute : `${location.fixedKm.toFixed(1)} km`}</td>
       <td className="px-4 py-2 text-slate-600">
         {formatAddress(location.address, location.postcode) || '-'}
       </td>

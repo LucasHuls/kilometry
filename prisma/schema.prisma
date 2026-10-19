@@ -38,46 +38,49 @@ model User {
 }
 
 model Location {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  name      String
-  fixedKm   Float    @default(0)
-  address   String?
-  postcode  String?
-  placeId   String?
-  isDefault Boolean  @default(false)
-  stops     TripStop[]
-  createdAt DateTime @default(now())
+  id          String     @id @default(cuid())
+  userId      String
+  user        User       @relation(fields: [userId], references: [id])
+  name        String
+  // Either the user enters a fixed one-way km from home (fixedKm), or it's calculated
+  // per trip via Google Maps (kmFromRoute).
+  fixedKm     Float      @default(0)
+  kmFromRoute Boolean    @default(false)
+  address     String?
+  postcode    String?
+  placeId     String?
+  isDefault   Boolean    @default(false)
+  stops       TripStop[]
+  createdAt   DateTime   @default(now())
 
   @@index([userId])
 }
 
 model Trip {
-  id             String    @id @default(cuid())
-  userId         String
-  user           User      @relation(fields: [userId], references: [id])
-  date           DateTime
-  stops          TripStop[]
-  description    String?
+  id           String     @id @default(cuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id])
+  date         DateTime
+  stops        TripStop[]
+  description  String?
   // km: distance of the outbound route (first stop to last stop).
   // returnKm: distance from the last stop back to the first. Null means "same as km",
   // which is how single-destination trips (and all trips from before multi-stop) work.
-  km             Float
-  returnKm       Float?
-  isReturnTrip   Boolean   @default(true)
-  createdAt      DateTime  @default(now())
+  km           Float
+  returnKm     Float?
+  isReturnTrip Boolean    @default(true)
+  createdAt    DateTime   @default(now())
 }
 
-// Ordered stops of a trip. A trip saved by the current form has at least 2 stops
-// (position 0 is the starting point). Trips migrated from before multi-stop have a
-// single stop (the destination) and implicitly started at the user's home address.
-// A stop either points at a saved Location, or carries its own name/address/postcode.
+// Ordered stops of a trip, position 0 being the starting point. A stop is either the
+// user's home (isHome, resolved to the current home address from settings), a saved
+// Location, or its own name/address/postcode.
 model TripStop {
   id         String    @id @default(cuid())
   tripId     String
   trip       Trip      @relation(fields: [tripId], references: [id], onDelete: Cascade)
   position   Int
+  isHome     Boolean   @default(false)
   locationId String?
   location   Location? @relation(fields: [locationId], references: [id], onDelete: Restrict)
   name       String?

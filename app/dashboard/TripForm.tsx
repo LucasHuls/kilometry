@@ -13,6 +13,7 @@ interface LocationOption {
   id: string
   name: string
   fixedKm: number
+  kmFromRoute: boolean
   address: string | null
   postcode: string | null
   placeId: string | null
@@ -27,6 +28,7 @@ interface HomeAddress {
 
 interface InitialStop {
   position: number
+  isHome: boolean
   locationId: string | null
   name: string | null
   address: string | null
@@ -77,29 +79,24 @@ export default function TripForm({ locations, home, mapsEnabled, tripId, default
   const router = useRouter()
   const { t } = useLocale()
   const defaultLocationId = locations.find((l) => l.isDefault)?.id ?? locations[0]?.id ?? OTHER
-  const startChoice = home ? HOME : OTHER
 
   function freshStops(): StopDraft[] {
-    return [draft(startChoice), draft(defaultLocationId)]
+    return [draft(HOME), draft(defaultLocationId)]
   }
 
   function initialStops(): StopDraft[] {
     if (!initial) return freshStops()
-    const drafts = [...initial.stops]
+    return [...initial.stops]
       .sort((a, b) => a.position - b.position)
       .map((s) => {
+        if (s.isHome) return draft(HOME)
         if (s.locationId) return draft(s.locationId)
-        if (home && !s.name && s.address === home.address && (s.postcode ?? '') === (home.postcode ?? '')) {
-          return draft(HOME)
-        }
         return draft(OTHER, s.name ?? '', {
           address: s.address ?? '',
           postcode: s.postcode ?? '',
           placeId: s.placeId ?? '',
         })
       })
-    // Legacy single-stop trip, see TripStop in schema.prisma.
-    return drafts.length === 1 ? [draft(startChoice), ...drafts] : drafts
   }
 
   const [date, setDate] = useState(initial?.date ?? today())
@@ -120,18 +117,20 @@ export default function TripForm({ locations, home, mapsEnabled, tripId, default
   const showReturnKm = isReturnTrip && destinationCount > 1
 
   function resolve(stop: StopDraft) {
-    if (stop.choice === HOME && home) {
+    if (stop.choice === HOME) {
       return {
+        isHome: true,
         locationId: null,
         name: null,
-        address: home.address,
-        postcode: home.postcode ?? '',
-        placeId: home.placeId ?? '',
+        address: home?.address ?? '',
+        postcode: home?.postcode ?? '',
+        placeId: home?.placeId ?? '',
       }
     }
     const location = locations.find((l) => l.id === stop.choice)
     if (location) {
       return {
+        isHome: false,
         locationId: location.id,
         name: null,
         address: location.address ?? '',
@@ -139,7 +138,7 @@ export default function TripForm({ locations, home, mapsEnabled, tripId, default
         placeId: location.placeId ?? '',
       }
     }
-    return { locationId: null, name: stop.name.trim() || null, ...stop.address }
+    return { isHome: false, locationId: null, name: stop.name.trim() || null, ...stop.address }
   }
 
   // Hand-typed "other" addresses only count once a suggestion is picked, so typing
@@ -156,18 +155,16 @@ export default function TripForm({ locations, home, mapsEnabled, tripId, default
   async function calculateDistance(preferFixedKm: boolean) {
     const id = ++requestId.current
 
-    // For a plain home -> location trip, the location's fixed km wins over Google.
-    const onlyDestination = locations.find((l) => l.id === stops[1]?.choice)
-    if (preferFixedKm && stops.length === 2 && stops[0].choice === HOME && onlyDestination?.fixedKm) {
+    // Home -> one saved location uses that location's own km, unless it's set to the route.
+    const onlyDestination =
+      stops.length === 2 && stops[0].choice === HOME ? locations.find((l) => l.id === stops[1].choice) : undefined
+    if (preferFixedKm && onlyDestination && !(onlyDestination.kmFromRoute && mapsEnabled)) {
       setKm(String(onlyDestination.fixedKm))
       setReturnKm('')
       setDistanceStatus('idle')
       return
     }
-    if (!mapsEnabled) {
-      if (preferFixedKm && stops.length === 2 && onlyDestination) setKm(String(onlyDestination.fixedKm))
-      return
-    }
+    if (!mapsEnabled) return
 
     const points = stops.map(routePoint)
     if (points.some((p) => p === null)) {
@@ -289,7 +286,7 @@ export default function TripForm({ locations, home, mapsEnabled, tripId, default
                   onChange={(e) => updateStop(stop.key, { choice: e.target.value })}
                   className="w-full rounded border border-slate-300 px-3 py-2.5"
                 >
-                  {home && <option value={HOME}>{t.trip.homeOption}</option>}
+                  <option value={HOME}>{t.trip.homeOption}</option>
                   {locations.map((loc) => (
                     <option key={loc.id} value={loc.id}>
                       {loc.name}
@@ -332,7 +329,14 @@ export default function TripForm({ locations, home, mapsEnabled, tripId, default
             {t.trip.addStop}
           </button>
         )}
-        {!home && <p className="mt-2 text-xs text-slate-500">{t.trip.noHomeAddressHint}</p>}
+        {!home && stops.some((s) => s.choice === HOME) && (
+          <p className="mt-2 text-xs text-slate-500">
+            {t.trip.noHomeAddressHint}{' '}
+            <Link href="/dashboard/settings" className="underline">
+              {t.nav.settings}
+            </Link>
+          </p>
+        )}
       </div>
 
       <div>

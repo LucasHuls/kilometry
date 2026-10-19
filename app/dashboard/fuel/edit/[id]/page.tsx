@@ -4,11 +4,12 @@ import { getCurrentUser } from '@/lib/auth'
 import { getT } from '@/lib/i18n/server'
 import FuelForm from '../../FuelForm'
 
-export default async function EditFuelEntryPage({ params }: { params: { id: string } }) {
+export default async function EditFuelEntryPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const user = await getCurrentUser()
   if (!user) return null
 
-  const entry = await prisma.fuelEntry.findUnique({ where: { id: params.id } })
+  const entry = await prisma.fuelEntry.findUnique({ where: { id } })
   if (!entry || entry.userId !== user.id) notFound()
 
   const { t } = await getT()
