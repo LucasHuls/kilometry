@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth'
 import { getT } from '@/lib/i18n/server'
-import { monthRange, currentMonthKey, getMonthlyTotals } from '@/lib/trips'
+import { monthRange, currentMonthKey, getMonthlyTotals, tripStopsInclude } from '@/lib/trips'
 import { effectiveKm } from '@/lib/tripKm'
 import MonthFilter from './MonthFilter'
 import TripRow from './TripRow'
@@ -22,7 +22,7 @@ export default async function DashboardPage({
   const [filteredTrips, allTrips, monthlyTotals] = await Promise.all([
     prisma.trip.findMany({
       where: { userId: user.id, date: monthRange(month) },
-      include: { location: true },
+      include: tripStopsInclude,
       orderBy: { date: 'desc' },
     }),
     prisma.trip.findMany({

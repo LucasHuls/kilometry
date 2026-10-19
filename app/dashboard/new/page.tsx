@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth'
 import { getT } from '@/lib/i18n/server'
+import { isMapsEnabled } from '@/lib/maps'
+import { homeAddressOf } from '@/lib/trips'
 import TripForm from '../TripForm'
 
 export default async function NewTripPage() {
@@ -16,7 +18,12 @@ export default async function NewTripPage() {
   return (
     <div>
       <h1 className="mb-4 text-xl font-semibold">{t.trip.newTripTitle}</h1>
-      <TripForm locations={locations} defaultReturnTrip={user.defaultReturnTrip} />
+      <TripForm
+        locations={locations}
+        home={homeAddressOf(user)}
+        mapsEnabled={isMapsEnabled()}
+        defaultReturnTrip={user.defaultReturnTrip}
+      />
     </div>
   )
 }

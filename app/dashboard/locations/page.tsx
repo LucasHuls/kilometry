@@ -12,7 +12,7 @@ export default async function LocationsPage() {
   const { t } = await getT()
   const locations = await prisma.location.findMany({
     where: { userId: user.id },
-    include: { _count: { select: { trips: true } } },
+    include: { _count: { select: { stops: true } } },
     orderBy: [{ isDefault: 'desc' }, { name: 'asc' }],
   })
 
@@ -34,6 +34,7 @@ export default async function LocationsPage() {
             <tr>
               <th className="px-4 py-2">{t.location.colName}</th>
               <th className="px-4 py-2">{t.location.colFixedKm}</th>
+              <th className="px-4 py-2">{t.location.colAddress}</th>
               <th className="px-4 py-2">{t.location.colUsed}</th>
               <th className="px-4 py-2"></th>
             </tr>
@@ -44,7 +45,7 @@ export default async function LocationsPage() {
             ))}
             {locations.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-4 py-6 text-center text-slate-400">
+                <td colSpan={5} className="px-4 py-6 text-center text-slate-400">
                   {t.location.noLocations}
                 </td>
               </tr>

@@ -43,7 +43,7 @@ export default function MonthlyChart({ data }: { data: MonthlyTotal[] }) {
     <div className="rounded-lg border border-slate-200 bg-white p-4">
       <p className="mb-2 text-sm text-slate-500">{t.dashboard.monthlyChartTitle}</p>
       <ResponsiveContainer width="100%" height={220}>
-        <BarChart data={data} margin={{ left: -20 }}>
+        <BarChart data={data} margin={{ left: -8 }}>
           <XAxis
             dataKey="month"
             tickFormatter={(value: string) => monthLabel(value, intlLocale)}
@@ -51,7 +51,7 @@ export default function MonthlyChart({ data }: { data: MonthlyTotal[] }) {
             axisLine={{ stroke: '#e2e8f0' }}
             tickLine={false}
           />
-          <YAxis tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} width={40} />
+          <YAxis tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} width={44} />
           <Tooltip content={<CustomTooltip intlLocale={intlLocale} />} cursor={{ fill: '#f1f5f9' }} />
           <Bar dataKey="km" fill="#22D3EE" radius={[4, 4, 0, 0]} />
         </BarChart>

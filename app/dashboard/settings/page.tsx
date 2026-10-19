@@ -1,5 +1,6 @@
 import { getCurrentUser } from '@/lib/auth'
 import { getT } from '@/lib/i18n/server'
+import { isMapsEnabled } from '@/lib/maps'
 import SettingsForm from './SettingsForm'
 
 export default async function SettingsPage() {
@@ -19,6 +20,11 @@ export default async function SettingsPage() {
         exportIncludeKm={user.exportIncludeKm}
         exportIncludeFee={user.exportIncludeFee}
         exportIncludeDescription={user.exportIncludeDescription}
+        exportIncludePostcodes={user.exportIncludePostcodes}
+        homeAddress={user.homeAddress}
+        homePostcode={user.homePostcode}
+        homePlaceId={user.homePlaceId}
+        mapsEnabled={isMapsEnabled()}
         fuelTrackingEnabled={user.fuelTrackingEnabled}
         email={user.email}
         emailLocale={user.emailLocale}

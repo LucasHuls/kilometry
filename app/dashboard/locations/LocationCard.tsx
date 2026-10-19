@@ -3,13 +3,16 @@
 import { useRouter } from 'next/navigation'
 import { readErrorMessage } from '@/lib/api'
 import { useLocale } from '@/lib/i18n/LocaleProvider'
+import { formatAddress } from '@/lib/normalize'
 
 interface Location {
   id: string
   name: string
   fixedKm: number
+  address: string | null
+  postcode: string | null
   isDefault: boolean
-  _count: { trips: number }
+  _count: { stops: number }
 }
 
 export default function LocationCard({ location }: { location: Location }) {
@@ -37,8 +40,13 @@ export default function LocationCard({ location }: { location: Location }) {
             </span>
           )}
         </p>
+        {(location.address || location.postcode) && (
+          <p className="text-sm text-slate-500">
+            {formatAddress(location.address, location.postcode)}
+          </p>
+        )}
         <p className="text-sm text-slate-500">
-          {location.fixedKm.toFixed(1)} km &middot; {t.location.usedCount(location._count.trips)}
+          {location.fixedKm.toFixed(1)} km &middot; {t.location.usedCount(location._count.stops)}
         </p>
       </div>
       <div className="flex shrink-0 items-center gap-3 text-sm">

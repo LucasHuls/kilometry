@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth'
 import { getT } from '@/lib/i18n/server'
+import { isMapsEnabled } from '@/lib/maps'
+import { homeAddressOf } from '@/lib/trips'
 import LocationForm from '../../LocationForm'
 
 export default async function EditLocationPage({ params }: { params: { id: string } }) {
@@ -18,7 +20,16 @@ export default async function EditLocationPage({ params }: { params: { id: strin
       <h1 className="mb-4 text-xl font-semibold">{t.location.editLocationTitle}</h1>
       <LocationForm
         locationId={location.id}
-        initial={{ name: location.name, fixedKm: location.fixedKm, isDefault: location.isDefault }}
+        mapsEnabled={isMapsEnabled()}
+        home={homeAddressOf(user)}
+        initial={{
+          name: location.name,
+          fixedKm: location.fixedKm,
+          address: location.address,
+          postcode: location.postcode,
+          placeId: location.placeId,
+          isDefault: location.isDefault,
+        }}
       />
     </div>
   )

@@ -20,18 +20,24 @@ The app then runs on `http://localhost:3000` (or the port from `PORT`). Log in w
 
 Want the weekly stats and submission reminder emails (settings)? Set `RESEND_API_KEY` and `RESEND_FROM_EMAIL` (a [Resend](https://resend.com) account with a verified sending domain) in your `.env`. Both emails are opt-in per feature and off by default. Which day they send on is evaluated against the container's local time, so also set `TZ` (e.g. `TZ=Europe/Amsterdam`) if you don't want UTC.
 
+Want address autocomplete and automatically calculated km? Set `GOOGLE_MAPS_API_KEY` in your `.env`: a Google Cloud API key with the **Places API (New)** and **Routes API** enabled. The key is only used server-side (the browser talks to Kilometry, never to Google directly), so you can restrict it by IP instead of by HTTP referrer. Without a key everything still works, you just type addresses, postcodes, and km yourself.
+
 `docker compose up -d` pulls the published image from `ghcr.io/lucashuls/kilometry`, built and released automatically on every push to `main`. Want to pin a specific version instead of always getting the latest one? Set `VERSION=v1.2.3` in your `.env`. Building from source instead (for development, or if you've made local changes) still works: `docker compose up -d --build`.
 
 ## Data model
 
-Every trip has a date, location, and number of km. You manage your own locations (name + an optional fixed distance that's auto-filled when you pick that location, but stays overridable).
+Every trip has a date, a route, and a number of km. A route is a starting point (by default your home address, see settings) plus one or more destinations, so `A -> B -> C` trips work too. Each stop is either one of your saved locations (name, address, postcode, and an optional fixed distance from home) or a one-off address with a postcode. The km are calculated via Google Maps when it's configured, or pre-filled from a location's fixed distance, and always stay overridable. A return trip adds the way back from the last stop to the starting point.
+
+![Adding a multi-stop trip](docs/screenshot-route.png)
 
 The reimbursement per trip is `km * kmRate`, where `kmRate` is configurable (settings).
 
 ## Features
 
 - Add, edit, and delete trips
-- Manage locations with a configurable fixed distance per location
+- Multi-stop routes, with addresses and postcodes per stop
+- Manage locations with an address and a configurable fixed distance per location
+- Optional Google Maps address autocomplete and km calculation
 - Overview with a monthly filter, monthly and all-time totals, and a chart per month
 - XLSX export of the filtered trips, with configurable columns (settings)
 - Optional weekly stats and submission reminder emails via Resend (settings)

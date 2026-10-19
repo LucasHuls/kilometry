@@ -28,7 +28,7 @@ export async function getWeeklyStats(
 
   const trips = await prisma.trip.findMany({
     where: { userId, date: { gte: since, lt: until } },
-    select: { km: true, isReturnTrip: true },
+    select: { km: true, returnKm: true, isReturnTrip: true },
   })
 
   const totalKm = trips.reduce((sum, trip) => sum + effectiveKm(trip), 0)

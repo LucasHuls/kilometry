@@ -29,6 +29,7 @@ services:
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - RESEND_API_KEY=${RESEND_API_KEY}
       - RESEND_FROM_EMAIL=${RESEND_FROM_EMAIL}
+      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY:-}
       - TZ=${TZ:-UTC}
     depends_on:
       db:

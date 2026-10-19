@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth'
 import { getT } from '@/lib/i18n/server'
+import { parseTripBody } from '@/lib/tripInput'
+import { tripStopsInclude } from '@/lib/trips'
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   const user = await getCurrentUser()
@@ -13,35 +15,17 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ error: t.errors.tripNotFound }, { status: 404 })
   }
 
-  const { date, locationId, customLocation, description, km, isReturnTrip } = await req.json()
-  if (!date || km === undefined || km === null) {
-    return NextResponse.json({ error: t.errors.allFieldsRequired }, { status: 400 })
-  }
+  const parsed = await parseTripBody(await req.json(), user.id, t)
+  if ('error' in parsed) return NextResponse.json({ error: parsed.error }, { status: 400 })
+  const { stops, ...data } = parsed.data
 
-  const trimmedCustomLocation = typeof customLocation === 'string' ? customLocation.trim() : ''
-  if (!locationId && !trimmedCustomLocation) {
-    return NextResponse.json({ error: t.errors.locationRequired }, { status: 400 })
-  }
-
-  if (locationId) {
-    const location = await prisma.location.findFirst({ where: { id: locationId, userId: user.id } })
-    if (!location) {
-      return NextResponse.json({ error: t.errors.invalidLocation }, { status: 400 })
-    }
-  }
-
-  const trimmedDescription = typeof description === 'string' ? description.trim() : ''
-
-  const updated = await prisma.trip.update({
-    where: { id: params.id },
-    data: {
-      date: new Date(date),
-      locationId: locationId || null,
-      customLocation: locationId ? null : trimmedCustomLocation,
-      description: trimmedDescription || null,
-      km: Number(km),
-      isReturnTrip: isReturnTrip !== false,
-    },
+  const updated = await prisma.$transaction(async (tx) => {
+    await tx.tripStop.deleteMany({ where: { tripId: params.id } })
+    return tx.trip.update({
+      where: { id: params.id },
+      data: { ...data, stops: { create: stops } },
+      include: tripStopsInclude,
+    })
   })
 
   return NextResponse.json(updated)

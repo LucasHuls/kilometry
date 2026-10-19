@@ -4,14 +4,15 @@ import { useRouter } from 'next/navigation'
 import { useLocale } from '@/lib/i18n/LocaleProvider'
 import { toIntlLocale } from '@/lib/i18n/cookie'
 import { effectiveKm } from '@/lib/tripKm'
+import { destinationsLabel, StopView } from '@/lib/tripStops'
 
 interface Trip {
   id: string
   date: Date
-  location: { name: string } | null
-  customLocation: string | null
+  stops: StopView[]
   description: string | null
   km: number
+  returnKm: number | null
   isReturnTrip: boolean
 }
 
@@ -30,7 +31,7 @@ export default function TripRow({ trip, kmRate }: { trip: Trip; kmRate: number }
     <tr className="border-t border-slate-100">
       <td className="px-4 py-2">{new Date(trip.date).toLocaleDateString(toIntlLocale(locale))}</td>
       <td className="px-4 py-2">
-        {trip.location?.name ?? trip.customLocation}
+        {destinationsLabel(trip.stops)}
         {trip.description && <span className="block text-xs text-slate-400">{trip.description}</span>}
       </td>
       <td className="px-4 py-2">{trip.isReturnTrip ? t.common.yes : t.common.no}</td>

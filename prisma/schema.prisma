@@ -18,6 +18,10 @@ model User {
   exportIncludeKm          Boolean     @default(true)
   exportIncludeFee         Boolean     @default(true)
   exportIncludeDescription Boolean     @default(true)
+  exportIncludePostcodes   Boolean     @default(true)
+  homeAddress              String?
+  homePostcode             String?
+  homePlaceId              String?
   fuelTrackingEnabled      Boolean     @default(false)
   email                    String?
   emailLocale              String      @default("nl")
@@ -39,8 +43,11 @@ model Location {
   user      User     @relation(fields: [userId], references: [id])
   name      String
   fixedKm   Float    @default(0)
+  address   String?
+  postcode  String?
+  placeId   String?
   isDefault Boolean  @default(false)
-  trips     Trip[]
+  stops     TripStop[]
   createdAt DateTime @default(now())
 
   @@index([userId])
@@ -51,13 +58,35 @@ model Trip {
   userId         String
   user           User      @relation(fields: [userId], references: [id])
   date           DateTime
-  locationId     String?
-  location       Location? @relation(fields: [locationId], references: [id], onDelete: Restrict)
-  customLocation String?
+  stops          TripStop[]
   description    String?
+  // km: distance of the outbound route (first stop to last stop).
+  // returnKm: distance from the last stop back to the first. Null means "same as km",
+  // which is how single-destination trips (and all trips from before multi-stop) work.
   km             Float
+  returnKm       Float?
   isReturnTrip   Boolean   @default(true)
   createdAt      DateTime  @default(now())
+}
+
+// Ordered stops of a trip. A trip saved by the current form has at least 2 stops
+// (position 0 is the starting point). Trips migrated from before multi-stop have a
+// single stop (the destination) and implicitly started at the user's home address.
+// A stop either points at a saved Location, or carries its own name/address/postcode.
+model TripStop {
+  id         String    @id @default(cuid())
+  tripId     String
+  trip       Trip      @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  position   Int
+  locationId String?
+  location   Location? @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  name       String?
+  address    String?
+  postcode   String?
+  placeId    String?
+
+  @@index([tripId])
+  @@index([locationId])
 }
 
 model FuelEntry {
